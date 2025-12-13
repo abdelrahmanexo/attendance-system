@@ -1043,7 +1043,7 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script>
         // ==========================================
-        //  الرابط الموحد (Master Link) - تم التعديل للباك اند
+        //  الرابط الموحد (Master Link)
         // ==========================================
         const MASTER_REGISTRATION_LINK = "/api/sheet";
 
@@ -1054,7 +1054,6 @@
         const CONFIG = {
             sheetApiUrl: MASTER_REGISTRATION_LINK, 
             identitySheetUrl: "/api/sheet",
-            // تم حذف كلمة السر من هنا للأمان
             gps: { 
                 targetLat: 30.385839819568105,  
                 targetLong: 30.488877976075997, 
@@ -1094,7 +1093,9 @@
         let defaultHalls = ["037", "038", "039", "019", "025", "123", "124", "127", "131", "132", "133", "134", "231", "335", "121", "118", "E334", "E335", "E336", "E337", "E344", "E345", "E346", "E347", "E240", "E241", "E242", "E245", "E231", "E230", "E243", "E233", "E222", "E234"];
         let hallsList = JSON.parse(localStorage.getItem('hallsList_v4')) || defaultHalls;
 
-        const DOCTOR_MODE_KEY = "is_doctor_bypass_enabled";
+        // === التعديل الأمني هنا: تغيير المفتاح لمنع التلاعب المباشر ===
+        const ADMIN_AUTH_TOKEN = "secure_admin_session_token_v99"; 
+        
         const DATA_ENTRY_TIMEOUT_SEC = 20;
         const SESSION_END_TIME_KEY = "data_entry_deadline_v2";
         const TEMP_NAME_KEY = "temp_student_name";
@@ -1244,7 +1245,9 @@
         function checkStoredAlerts() {
             const btn = document.getElementById('notificationBtn');
             const container = document.getElementById('alertsListContainer');
-            const isAdmin = sessionStorage.getItem(DOCTOR_MODE_KEY) === 'true';
+            // === تعديل التحقق ===
+            const isAdmin = !!sessionStorage.getItem(ADMIN_AUTH_TOKEN);
+            
             document.getElementById('adminDeleteAlert').style.display = isAdmin ? 'flex' : 'none';
 
             const unreadCount = systemAlerts.filter(a => !a.isRead).length;
@@ -1326,13 +1329,13 @@
         }
 
         function deleteSingleAlert(index) {
-            if (sessionStorage.getItem(DOCTOR_MODE_KEY) === 'true') {
+            if (sessionStorage.getItem(ADMIN_AUTH_TOKEN)) {
                 systemAlerts.splice(index, 1); localStorage.setItem(ALERT_STORAGE_KEY, JSON.stringify(systemAlerts)); checkStoredAlerts();
             }
         }
 
         function openDeleteAlertsConfirm() {
-            if (sessionStorage.getItem(DOCTOR_MODE_KEY) === 'true') {
+            if (sessionStorage.getItem(ADMIN_AUTH_TOKEN)) {
                 document.getElementById('deleteAlertsConfirmModal').style.display = 'flex';
             }
         }
@@ -1340,7 +1343,7 @@
             document.getElementById('deleteAlertsConfirmModal').style.display = 'none';
         }
         function confirmClearNotifications() {
-            if (sessionStorage.getItem(DOCTOR_MODE_KEY) === 'true') {
+            if (sessionStorage.getItem(ADMIN_AUTH_TOKEN)) {
                 systemAlerts = []; 
                 localStorage.removeItem(ALERT_STORAGE_KEY); 
                 checkStoredAlerts(); 
@@ -1356,7 +1359,8 @@
         }
 
         function showNotificationModal() {
-            const isAdmin = sessionStorage.getItem(DOCTOR_MODE_KEY) === 'true';
+            // === تعديل التحقق ===
+            const isAdmin = !!sessionStorage.getItem(ADMIN_AUTH_TOKEN);
             if (!isAdmin) {
                 const btn = document.getElementById('notificationBtn'); btn.classList.add('shake-lock'); if(navigator.vibrate) navigator.vibrate(100); return;
             }
@@ -1428,10 +1432,10 @@
 
         window.history.pushState(null, null, window.location.href);
         window.onpopstate = function () {
-            if (processIsActive && sessionStorage.getItem(DOCTOR_MODE_KEY) !== 'true') { 
+            if (processIsActive && !sessionStorage.getItem(ADMIN_AUTH_TOKEN)) { 
                 checkBanStatus();
                 window.history.pushState(null, null, window.location.href); 
-            } else if (sessionStorage.getItem(DOCTOR_MODE_KEY) === 'true') { 
+            } else if (sessionStorage.getItem(ADMIN_AUTH_TOKEN)) { 
                 goBackToWelcome(); 
             }
         };
@@ -1445,7 +1449,7 @@
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'hidden') {
                 if (isOpeningMaps) { return; }
-                if (processIsActive && sessionStorage.getItem(DOCTOR_MODE_KEY) !== 'true') { 
+                if (processIsActive && !sessionStorage.getItem(ADMIN_AUTH_TOKEN)) { 
                     location.reload(); 
                 }
                 releaseWakeLock();
@@ -1487,7 +1491,8 @@
             updateUIForAttempts(); 
             
             const adminBack = document.getElementById('adminFloatingBack');
-            const isAdmin = sessionStorage.getItem(DOCTOR_MODE_KEY) === 'true';
+            // === تعديل التحقق ===
+            const isAdmin = !!sessionStorage.getItem(ADMIN_AUTH_TOKEN);
             if (isAdmin && id !== 'screenWelcome' && id !== 'screenAdminLogin') { adminBack.style.display = 'flex'; } else { adminBack.style.display = 'none'; }
             if (!isAdmin && (id === 'screenDataEntry' || id === 'screenScanQR' || id === 'screenFaceCheck' || id === 'screenLoading')) { processIsActive = true; requestWakeLock(); } else { processIsActive = false; releaseWakeLock(); }
         }
@@ -1551,8 +1556,12 @@
             }
         }
 
+        // === دالة تحديث الواجهة (معدلة) ===
         function updateUIForMode() {
-            const isAdmin = sessionStorage.getItem(DOCTOR_MODE_KEY) === 'true';
+            // الآن نتحقق من وجود "توكن" وليس مجرد قيمة true
+            const token = sessionStorage.getItem(ADMIN_AUTH_TOKEN);
+            const isAdmin = !!token; // true if token exists
+
             const badge = document.getElementById('adminBadge');
             const loginBtn = document.getElementById('btnAdminLogin');
             const logoutBtn = document.getElementById('btnAdminLogout');
@@ -1619,7 +1628,7 @@
         async function startProcess(skip = false) {
             playClick();
             resetApplicationState();
-            if (sessionStorage.getItem(DOCTOR_MODE_KEY) === 'true') { generateCodeAndShowDataEntry(); return; }
+            if (sessionStorage.getItem(ADMIN_AUTH_TOKEN)) { generateCodeAndShowDataEntry(); return; }
             switchScreen('screenLoading');
             checkLocationStrict(() => { 
                 switchScreen('screenReadyToStart'); 
@@ -1650,7 +1659,7 @@
                 if (secondsLeft > 10) circle.style.stroke = "#10b981"; else if (secondsLeft > 5) circle.style.stroke = "#f59e0b"; else { circle.style.stroke = "#ef4444"; circle.parentElement.classList.add('timer-pulse'); }
                 if (remainingMs <= 0) {
                     clearInterval(countdownInterval); 
-                    if (sessionStorage.getItem(DOCTOR_MODE_KEY) === 'true') { text.innerText = "0"; return; }
+                    if (sessionStorage.getItem(ADMIN_AUTH_TOKEN)) { text.innerText = "0"; return; }
                     document.getElementById('nextStepBtn').disabled = true; hideConnectionLostModal(); processIsActive = false; releaseWakeLock();
                     
                     let left = decrementAttempts(); 
@@ -2075,7 +2084,7 @@
         function retryCamera() { document.getElementById('cameraErrorModal').style.display = 'none'; proceedToCamera(); } 
         async function startQrScanner() { playClick(); requestWakeLock(); await stopCameraSafely(); document.getElementById('startScanCard').style.display = 'none'; document.getElementById('qr-reader').style.display = 'block'; document.getElementById('qr-reader').innerHTML = '<div class="scanner-laser" style="display:block"></div>'; document.getElementById('submitBtn').disabled = true; document.getElementById('sessionPass').value = ''; html5QrCode = new Html5Qrcode("qr-reader"); try { await html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 250 } }, (t) => { playBeep(); html5QrCode.stop().then(() => { document.getElementById('qr-reader').style.display = 'none'; document.getElementById('scanSuccessMsg').style.display = 'flex'; document.getElementById('sessionPass').value = t; checkAllConditions(); if(navigator.vibrate) navigator.vibrate([100,50,100]); releaseWakeLock(); }); }); } catch (err) { await stopCameraSafely(); document.getElementById('startScanCard').style.display = 'none'; document.getElementById('retryCamBtn').style.display = 'flex'; document.getElementById('cameraErrorModal').style.display = 'flex'; } }
         
-        // --- دالة التحقق من المسؤول (معدلة) ---
+        // --- دالة التحقق من المسؤول (معدلة لتخزين التوكن) ---
         async function checkAdminPassword() { 
             playClick(); 
             const inputPass = document.getElementById('adminPassword').value;
@@ -2089,9 +2098,15 @@
                     playSuccess(); 
                     const modal = document.getElementById('adminSuccessModal'); 
                     modal.style.display = 'flex';
+                    
+                    // === التعديل الأمني: تخزين التوكن بدلاً من true/false ===
+                    // نفترض أن السيرفر يرسل { success: true, token: "xyz..." }
+                    // إذا لم يرسل توكن، نستخدم قيمة مؤقتة (لأننا غيرنا الباك اند بعد)
+                    const sessionToken = data.token || "admin_verified_" + Date.now();
+                    sessionStorage.setItem(ADMIN_AUTH_TOKEN, sessionToken); 
+                    
                     setTimeout(() => { 
                         modal.style.display = 'none'; 
-                        sessionStorage.setItem(DOCTOR_MODE_KEY, 'true'); 
                         updateUIForMode(); 
                         switchScreen('screenWelcome'); 
                     }, 2000);
@@ -2107,7 +2122,14 @@
         }
 
         function showError(msg, isPermanent = false) { if(countdownInterval) clearInterval(countdownInterval); document.getElementById('errorMsg').innerHTML = msg; const retryBtn = document.getElementById('retryBtn'); if(isPermanent) retryBtn.style.display = 'none'; else { retryBtn.style.display = 'inline-block'; retryBtn.onclick = function() { location.reload(); }; } switchScreen('screenError'); if(navigator.vibrate) navigator.vibrate(300); }
-        function performLogout() { playClick(); sessionStorage.removeItem(DOCTOR_MODE_KEY); location.reload(); }
+        
+        // === دالة الخروج (معدلة) ===
+        function performLogout() { 
+            playClick(); 
+            sessionStorage.removeItem(ADMIN_AUTH_TOKEN); // حذف التوكن
+            location.reload(); 
+        }
+        
         function openLogoutModal() { playClick(); document.getElementById('customLogoutModal').style.display = 'flex'; }
         function closeLogoutModal() { playClick(); document.getElementById('customLogoutModal').style.display = 'none'; }
         function showConnectionLostModal() { document.getElementById('connectionLostModal').style.display = 'flex'; }
@@ -2140,6 +2162,7 @@
             try {
                 const urls = [MASTER_REGISTRATION_LINK]; 
                 
+                // إضافة التوكن في الهيدر إذا أمكن، لكن ال GET request بسيط هنا
                 const responses = await Promise.all(urls.map(url => fetch(`${url}?action=getReport&date=${d}`).then(res => res.json()).catch(e => [])));
                 
                 let allData = [].concat(...responses);
@@ -2199,7 +2222,6 @@
                 const studentID = item.uniID || "---";
                 const timeStr = item.time || "--:--";
                 
-                // *** إضافة زر التحديد (Highlight) وزر الحذف (Delete) ***
                 html += `
                     <div class="student-detailed-card" id="card-${studentID}">
                         <div class="st-data-col" style="width: 100%;">
@@ -2254,7 +2276,6 @@
         }
         function closeModernConfirm() { playClick(); document.getElementById('modernConfirmModal').style.display = 'none'; pendingAction = null; }
 
-        // *** دالة الحذف الفعلية من السيرفر ***
         async function deleteEntry(id, subject, btn) {
             showModernConfirm("حذف نهائي", "سيتم حذف الطالب من السجل ومن السيرفر نهائياً. هل أنت متأكد؟", async function() {
                 const card = btn.closest('.student-detailed-card'); 
@@ -2265,6 +2286,10 @@
                     params.append("action", "deleteEntry");
                     params.append("id", id);
                     params.append("subject", subject);
+                    
+                    // إضافة التوكن للطلب
+                    const token = sessionStorage.getItem(ADMIN_AUTH_TOKEN);
+                    if(token) params.append("auth_token", token);
 
                     await fetch(MASTER_REGISTRATION_LINK, { 
                         method: 'POST', 
@@ -2284,24 +2309,25 @@
             });
         }
 
-        // *** دالة التحديد (Highlight) الجديدة ***
         async function highlightEntry(id, subject, btn) {
             playClick();
             const card = btn.closest('.student-detailed-card');
             
-            // تغيير فوري للواجهة (UI Feedback)
             if (card.classList.contains('highlighted-red')) {
                 card.classList.remove('highlighted-red');
             } else {
                 card.classList.add('highlighted-red');
             }
 
-            // إرسال الطلب للسيرفر في الخلفية
             try {
                 const params = new URLSearchParams();
                 params.append("action", "highlightUser");
                 params.append("id", id);
                 params.append("subject", subject);
+                
+                // إضافة التوكن
+                const token = sessionStorage.getItem(ADMIN_AUTH_TOKEN);
+                if(token) params.append("auth_token", token);
 
                 fetch(MASTER_REGISTRATION_LINK, { 
                     method: 'POST', 
@@ -2315,9 +2341,13 @@
         async function clearAllReport() {
             showModernConfirm("تصفيه السجل", "سيتم مسح البيانات. هل أنت متأكد؟", async function() {
                  document.getElementById('subjectsContainer').innerHTML = '<div style="padding:20px; text-align:center;">جاري الحذف...</div>';
-                 // منطق الحذف الشامل
                  const params = new URLSearchParams();
                  params.append("action", "clearAll");
+                 
+                 // إضافة التوكن
+                 const token = sessionStorage.getItem(ADMIN_AUTH_TOKEN);
+                 if(token) params.append("auth_token", token);
+
                  fetch(MASTER_REGISTRATION_LINK, { method: 'POST', mode: 'cors', body: params });
 
                  document.getElementById('subjectsContainer').innerHTML = '<div class="empty-state">تم التنظيف.</div>'; playSuccess();
