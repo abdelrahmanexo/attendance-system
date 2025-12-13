@@ -1,52 +1,63 @@
 // api/sheet.js
-
 export default async function handler(req, res) {
-    // إحضار رابط جوجل السري من إعدادات Vercel
+    // 1. إعدادات الأمان والوصول
     const GOOGLE_SHEET_URL = process.env.GOOGLE_SHEET_URL;
+    // التوكن السري المخزن في فيرسل (أو استخدم الثابت مؤقتاً كما اتفقنا)
+    const SECRET_ADMIN_TOKEN = process.env.ADMIN_TOKEN || "secure_admin_session_token_v99";
+
+    // السماح بالوصول من المتصفح (CORS)
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+    }
+
+    // 2. تجميع البيانات (سواء جاءت GET أو POST)
+    const incomingData = { ...req.query, ...req.body };
+    const { action, auth_token } = incomingData;
+
+    // ============================================================
+    // 🛡️ منطقة الحماية: نقطة التفتيش قبل التحدث مع جوجل
+    // ============================================================
+    
+    // قائمة الإجراءات التي تتطلب "كارنيه" الأدمن
+    const protectedActions = ["deleteEntry", "highlightUser", "clearAll", "getAlerts"];
+
+    if (protectedActions.includes(action)) {
+        // إذا كان التوكن القادم من الموقع غير مطابق للتوكن الموجود هنا
+        if (!auth_token || auth_token !== SECRET_ADMIN_TOKEN) {
+            // ⛔ توقف هنا فوراً ولا تكمل
+            return res.status(401).json({
+                result: "error",
+                message: "⛔ Security Alert: Invalid or Missing Token. Access Denied."
+            });
+        }
+    }
+    // ============================================================
+
+    // 3. تجهيز البيانات للإرسال إلى جوجل شيت
+    const formParams = new URLSearchParams();
+    for (const key in incomingData) {
+        formParams.append(key, incomingData[key]);
+    }
 
     try {
-        // ==========================================
-        // 1. التعامل مع طلبات القراءة (GET) - مثل جلب التقرير
-        // ==========================================
-        if (req.method === 'GET') {
-            // تحويل الباراميترز إلى نص لعنوان الرابط
-            const queryString = new URLSearchParams(req.query).toString();
-            
-            const response = await fetch(`${GOOGLE_SHEET_URL}?${queryString}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            });
-            
-            const data = await response.json();
-            return res.status(200).json(data);
-        }
-
-        // ==========================================
-        // 2. التعامل مع طلبات التسجيل (POST) - مثل تسجيل الحضور
-        // ==========================================
-        if (req.method === 'POST') {
-            // Vercel يستلم البيانات كـ Object في req.body
-            // نحن سنقوم بتحويلها إلى JSON نصي لإرسالها لجوجل بشكل نظيف
-            const response = await fetch(GOOGLE_SHEET_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json', // نحدد النوع JSON
-                },
-                body: JSON.stringify(req.body) // هذا هو التصحيح المهم
-            });
-
-            const data = await response.json();
-            return res.status(200).json(data);
-        }
+        // 4. السيرفر يمرر الطلب (الآن هو آمن)
+        // نستخدم POST دائماً للتواصل مع App Script لأنه الأفضل في التعامل مع Payload
+        const response = await fetch(GOOGLE_SHEET_URL, {
+            method: 'POST', 
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: formParams.toString()
+        });
+        
+        const data = await response.json();
+        
+        // 5. إرجاع الرد للموقع
+        return res.status(200).json(data);
 
     } catch (error) {
-        console.error("Error connecting to Google Sheet:", error);
-        return res.status(500).json({ 
-            result: "error", 
-            message: "فشل الاتصال بقاعدة البيانات",
-            error: error.message 
-        });
+        return res.status(500).json({ error: "حدث خطأ أثناء الاتصال بقاعدة البيانات", details: error.message });
     }
 }
