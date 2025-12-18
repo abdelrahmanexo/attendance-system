@@ -442,7 +442,7 @@
         <div class="modal-box">
             <i class="fa-solid fa-user-check bypass-icon"></i>
             <div class="modal-title" style="color: #10b981;">تم تجاوز التحقق</div>
-            <div class="modal-text">أنت الآن في وضع المسؤول اليدوي.</div>
+            <div class="modal-text">أنت الآن في وضع المسؤول اليدوي.<br><small style="color:#ef4444;">تم تخطي بصمة الوجه والموقع الجغرافي</small></div>
         </div>
     </div>
     
@@ -1045,7 +1045,7 @@
         // ==========================================
         //  الرابط الموحد (Master Link)
         // ==========================================
-        const MASTER_REGISTRATION_LINK = "/api/sheet";
+        const MASTER_REGISTRATION_LINK = "https://script.google.com/macros/s/AKfycby853_9r1Xmn8G0v4Mc_P3V9E3l8q_Y9_2W_8X7_Z1_0_5_9/exec";
 
         const GROUP_SHEET_URLS = {};
         for(let i=1; i<=20; i++) { GROUP_SHEET_URLS["1G"+i] = MASTER_REGISTRATION_LINK; }
@@ -1065,6 +1065,7 @@
         const LOCAL_STORAGE_DB_KEY = "offline_students_db_v2";
         const ALERT_STORAGE_KEY = "persistent_student_alerts_v2";
         const DEVICE_ID_KEY = "unique_device_id_v1"; 
+        const HIGHLIGHT_STORAGE_KEY = "student_highlights_persistent"; // مفتاح حفظ التحديد
 
         let studentsDB = {};
         let wakeLock = null;
@@ -1093,7 +1094,6 @@
         let defaultHalls = ["037", "038", "039", "019", "025", "123", "124", "127", "131", "132", "133", "134", "231", "335", "121", "118", "E334", "E335", "E336", "E337", "E344", "E345", "E346", "E347", "E240", "E241", "E242", "E245", "E231", "E230", "E243", "E233", "E222", "E234"];
         let hallsList = JSON.parse(localStorage.getItem('hallsList_v4')) || defaultHalls;
 
-        // === التعديل الأمني هنا: تغيير المفتاح لمنع التلاعب المباشر ===
         const ADMIN_AUTH_TOKEN = "secure_admin_session_token_v99"; 
         
         const DATA_ENTRY_TIMEOUT_SEC = 20;
@@ -1245,7 +1245,7 @@
         function checkStoredAlerts() {
             const btn = document.getElementById('notificationBtn');
             const container = document.getElementById('alertsListContainer');
-            // === تعديل التحقق ===
+            
             const isAdmin = !!sessionStorage.getItem(ADMIN_AUTH_TOKEN);
             
             document.getElementById('adminDeleteAlert').style.display = isAdmin ? 'flex' : 'none';
@@ -1359,7 +1359,6 @@
         }
 
         function showNotificationModal() {
-            // === تعديل التحقق ===
             const isAdmin = !!sessionStorage.getItem(ADMIN_AUTH_TOKEN);
             if (!isAdmin) {
                 const btn = document.getElementById('notificationBtn'); btn.classList.add('shake-lock'); if(navigator.vibrate) navigator.vibrate(100); return;
@@ -1491,7 +1490,6 @@
             updateUIForAttempts(); 
             
             const adminBack = document.getElementById('adminFloatingBack');
-            // === تعديل التحقق ===
             const isAdmin = !!sessionStorage.getItem(ADMIN_AUTH_TOKEN);
             if (isAdmin && id !== 'screenWelcome' && id !== 'screenAdminLogin') { adminBack.style.display = 'flex'; } else { adminBack.style.display = 'none'; }
             if (!isAdmin && (id === 'screenDataEntry' || id === 'screenScanQR' || id === 'screenFaceCheck' || id === 'screenLoading')) { processIsActive = true; requestWakeLock(); } else { processIsActive = false; releaseWakeLock(); }
@@ -1548,7 +1546,6 @@
 
         function startGPSWatcher() {
             if (navigator.geolocation) {
-                // استخدام enableHighAccuracy هنا أيضاً
                 geo_watch_id = navigator.geolocation.watchPosition(
                     (position) => { userLat = position.coords.latitude; userLng = position.coords.longitude; },
                     (error) => { }, { enableHighAccuracy: true, maximumAge: 30000, timeout: 20000 }
@@ -1556,11 +1553,10 @@
             }
         }
 
-        // === دالة تحديث الواجهة (معدلة) ===
+        // === دالة تحديث الواجهة ===
         function updateUIForMode() {
-            // الآن نتحقق من وجود "توكن" وليس مجرد قيمة true
             const token = sessionStorage.getItem(ADMIN_AUTH_TOKEN);
-            const isAdmin = !!token; // true if token exists
+            const isAdmin = !!token; 
 
             const badge = document.getElementById('adminBadge');
             const loginBtn = document.getElementById('btnAdminLogin');
@@ -1589,13 +1585,8 @@
 
         // --- Fake GPS Detection Logic ---
         function detectFakeGPS(pos) {
-            // Fake GPS often returns implausibly high accuracy (e.g. 0, 1, or 2 meters exactly)
-            // Real GPS typically has accuracy > 3m even in best conditions.
             if (pos.coords.accuracy < 2) return true;
-
-            // Fake GPS often has null or 0 altitude while claiming high accuracy
             if (pos.coords.altitude === null && pos.coords.accuracy < 10) return true;
-            
             return false;
         }
 
@@ -1603,18 +1594,16 @@
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     (pos) => { 
-                        // First check for Fake GPS
                         if (detectFakeGPS(pos)) {
                             showError("🚫 تم اكتشاف موقع وهمي (Fake GPS). يرجى إغلاق أي برامج تلاعب بالموقع.", false);
                             return;
                         }
-
                         userLat = pos.coords.latitude; 
                         userLng = pos.coords.longitude; 
                         checkDistance(onSuccess); 
                     },
                     (err) => { document.getElementById('locationForceModal').style.display = 'flex'; },
-                    { enableHighAccuracy: true, maximumAge: 10000, timeout: 20000 } // Force Hardware GPS
+                    { enableHighAccuracy: true, maximumAge: 10000, timeout: 20000 } 
                 );
             } else { document.getElementById('locationForceModal').style.display = 'flex'; }
         }
@@ -1693,15 +1682,26 @@
             } else { alertBox.innerText = "❌ الكود غير صحيح."; alertBox.style.display = 'block'; if(navigator.vibrate) navigator.vibrate(300); }
         }
 
+        // ==========================================
+        //  التعديل 1: تجاوز التحقق (وجه + موقع)
+        // ==========================================
         function toggleBypassMode() {
             const chk = document.getElementById('bypassCheckbox');
             const btnVerify = document.getElementById('btnVerify');
             if(chk.checked) {
-                attendanceData.isVerified = true; btnVerify.style.display = 'none'; 
+                attendanceData.isVerified = true; 
+                // وضع إحداثيات صحيحة وهمية لتجاوز فحص الموقع
+                userLat = CONFIG.gps.targetLat;
+                userLng = CONFIG.gps.targetLong;
+                
+                btnVerify.style.display = 'none'; 
                 document.getElementById('bypassModal').style.display = 'flex';
                 setTimeout(() => { document.getElementById('bypassModal').style.display = 'none'; }, 2000);
             } else {
-                attendanceData.isVerified = false; btnVerify.style.display = 'flex'; btnVerify.innerHTML = '<i class="fa-solid fa-fingerprint"></i> التحقق من الهوية'; btnVerify.classList.remove('disabled');
+                attendanceData.isVerified = false; 
+                btnVerify.style.display = 'flex'; 
+                btnVerify.innerHTML = '<i class="fa-solid fa-fingerprint"></i> التحقق من الهوية'; 
+                btnVerify.classList.remove('disabled');
             }
             checkAllConditions();
         }
@@ -2084,13 +2084,11 @@
         function retryCamera() { document.getElementById('cameraErrorModal').style.display = 'none'; proceedToCamera(); } 
         async function startQrScanner() { playClick(); requestWakeLock(); await stopCameraSafely(); document.getElementById('startScanCard').style.display = 'none'; document.getElementById('qr-reader').style.display = 'block'; document.getElementById('qr-reader').innerHTML = '<div class="scanner-laser" style="display:block"></div>'; document.getElementById('submitBtn').disabled = true; document.getElementById('sessionPass').value = ''; html5QrCode = new Html5Qrcode("qr-reader"); try { await html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 250 } }, (t) => { playBeep(); html5QrCode.stop().then(() => { document.getElementById('qr-reader').style.display = 'none'; document.getElementById('scanSuccessMsg').style.display = 'flex'; document.getElementById('sessionPass').value = t; checkAllConditions(); if(navigator.vibrate) navigator.vibrate([100,50,100]); releaseWakeLock(); }); }); } catch (err) { await stopCameraSafely(); document.getElementById('startScanCard').style.display = 'none'; document.getElementById('retryCamBtn').style.display = 'flex'; document.getElementById('cameraErrorModal').style.display = 'flex'; } }
         
-        // --- دالة التحقق من المسؤول (معدلة لتخزين التوكن) ---
         async function checkAdminPassword() { 
             playClick(); 
             const inputPass = document.getElementById('adminPassword').value;
 
             try {
-                // نرسل كلمة السر للسيرفر ليفحصها
                 const response = await fetch(`/api/login?password=${inputPass}`);
                 const data = await response.json();
 
@@ -2099,9 +2097,6 @@
                     const modal = document.getElementById('adminSuccessModal'); 
                     modal.style.display = 'flex';
                     
-                    // === التعديل الأمني: تخزين التوكن بدلاً من true/false ===
-                    // نفترض أن السيرفر يرسل { success: true, token: "xyz..." }
-                    // إذا لم يرسل توكن، نستخدم قيمة مؤقتة (لأننا غيرنا الباك اند بعد)
                     const sessionToken = data.token || "admin_verified_" + Date.now();
                     sessionStorage.setItem(ADMIN_AUTH_TOKEN, sessionToken); 
                     
@@ -2123,10 +2118,9 @@
 
         function showError(msg, isPermanent = false) { if(countdownInterval) clearInterval(countdownInterval); document.getElementById('errorMsg').innerHTML = msg; const retryBtn = document.getElementById('retryBtn'); if(isPermanent) retryBtn.style.display = 'none'; else { retryBtn.style.display = 'inline-block'; retryBtn.onclick = function() { location.reload(); }; } switchScreen('screenError'); if(navigator.vibrate) navigator.vibrate(300); }
         
-        // === دالة الخروج (معدلة) ===
         function performLogout() { 
             playClick(); 
-            sessionStorage.removeItem(ADMIN_AUTH_TOKEN); // حذف التوكن
+            sessionStorage.removeItem(ADMIN_AUTH_TOKEN); 
             location.reload(); 
         }
         
@@ -2162,7 +2156,6 @@
             try {
                 const urls = [MASTER_REGISTRATION_LINK]; 
                 
-                // إضافة التوكن في الهيدر إذا أمكن، لكن ال GET request بسيط هنا
                 const responses = await Promise.all(urls.map(url => fetch(`${url}?action=getReport&date=${d}`).then(res => res.json()).catch(e => [])));
                 
                 let allData = [].concat(...responses);
@@ -2203,6 +2196,18 @@
             document.getElementById('subjectsContainer').innerHTML = html;
         }
 
+        // ==========================================
+        //  التعديل 2: تثبيت التحديد (Persistent Highlight)
+        // ==========================================
+        function getHighlights() { return JSON.parse(localStorage.getItem(HIGHLIGHT_STORAGE_KEY) || "[]"); }
+        function toggleHighlightStorage(id) {
+            let list = getHighlights();
+            if(list.includes(id)) list = list.filter(x => x !== id);
+            else list.push(id);
+            localStorage.setItem(HIGHLIGHT_STORAGE_KEY, JSON.stringify(list));
+            return list.includes(id);
+        }
+
         function openSubjectDetails(subjectName) {
             playClick();
             document.getElementById('currentSubjectTitle').innerText = subjectName;
@@ -2213,6 +2218,8 @@
                 return a.group.localeCompare(b.group, undefined, {numeric: true, sensitivity: 'base'});
             });
 
+            const highlights = getHighlights(); // جلب قائمة المحددين من الذاكرة
+
             let html = '';
             students.forEach(item => {
                 const sessionCode = item.code || "N/A";
@@ -2222,8 +2229,11 @@
                 const studentID = item.uniID || "---";
                 const timeStr = item.time || "--:--";
                 
+                // تطبيق الكلاس إذا كان الطالب محفوظاً
+                const highlightClass = highlights.includes(studentID) ? 'highlighted-red' : '';
+
                 html += `
-                    <div class="student-detailed-card" id="card-${studentID}">
+                    <div class="student-detailed-card ${highlightClass}" id="card-${studentID}">
                         <div class="st-data-col" style="width: 100%;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
                                 <div class="st-name" style="font-size:14px;">${studentName}</div>
@@ -2287,7 +2297,6 @@
                     params.append("id", id);
                     params.append("subject", subject);
                     
-                    // إضافة التوكن للطلب
                     const token = sessionStorage.getItem(ADMIN_AUTH_TOKEN);
                     if(token) params.append("auth_token", token);
 
@@ -2313,19 +2322,22 @@
             playClick();
             const card = btn.closest('.student-detailed-card');
             
-            if (card.classList.contains('highlighted-red')) {
-                card.classList.remove('highlighted-red');
-            } else {
+            // حفظ التحديد في الذاكرة المحلية أولاً
+            const isNowHighlighted = toggleHighlightStorage(id);
+
+            if (isNowHighlighted) {
                 card.classList.add('highlighted-red');
+            } else {
+                card.classList.remove('highlighted-red');
             }
 
+            // إرسال للسيرفر (اختياري للحفظ المركزي)
             try {
                 const params = new URLSearchParams();
                 params.append("action", "highlightUser");
                 params.append("id", id);
                 params.append("subject", subject);
                 
-                // إضافة التوكن
                 const token = sessionStorage.getItem(ADMIN_AUTH_TOKEN);
                 if(token) params.append("auth_token", token);
 
@@ -2344,7 +2356,6 @@
                  const params = new URLSearchParams();
                  params.append("action", "clearAll");
                  
-                 // إضافة التوكن
                  const token = sessionStorage.getItem(ADMIN_AUTH_TOKEN);
                  if(token) params.append("auth_token", token);
 
@@ -2376,4 +2387,3 @@
     </script>
 </body>
 </html>
-
