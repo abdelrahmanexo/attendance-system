@@ -234,7 +234,9 @@
         .student-detailed-card.highlighted-red { background: #fee2e2 !important; border: 1px solid #ef4444 !important; }
         .student-detailed-card.alert-row .st-name { color: #b91c1c; }
         .st-data-col { display: flex; flex-direction: column; gap: 4px; text-align: right; }
-        .st-name { font-weight: 800; font-size: 13px; color: #1e293b; }
+        .st-name { font-weight: 800; font-size: 13px; color: #1e293b; cursor: pointer; transition: 0.2s; }
+        .st-name:active { color: var(--primary); transform: scale(0.98); }
+        
         .std-time-badge { background: #ecfdf5; color: #059669; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 800; display: inline-flex; align-items: center; gap: 4px; margin-top: 5px; direction: ltr; }
         .std-time-badge span { font-family: 'Outfit', sans-serif !important; }
         .std-hall-badge { background: #f0f9ff; color: var(--primary); padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 800; display: inline-flex; align-items: center; gap: 4px; margin-top: 5px; margin-left: 5px; }
@@ -425,6 +427,15 @@
         
         /* تعديل 6: مودال التكرار */
         #duplicateModal .modal-box { border-top: 5px solid #f59e0b; }
+
+        /* === Styles for Evaluation Modal === */
+        .slider-container { margin: 20px 0; padding: 10px; background: #f8fafc; border-radius: 15px; }
+        .range-slider { width: 100%; -webkit-appearance: none; height: 10px; border-radius: 5px; background: #e2e8f0; outline: none; transition: background 0.3s; }
+        .range-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 25px; height: 25px; border-radius: 50%; background: var(--primary); cursor: pointer; border: 3px solid #fff; box-shadow: 0 0 10px rgba(0,0,0,0.1); transition: 0.2s; }
+        .range-slider::-webkit-slider-thumb:hover { transform: scale(1.1); }
+        .eval-emoji { font-size: 60px; margin-bottom: 5px; display: block; animation: popUp 0.3s; transition: 0.2s; }
+        .eval-badge { font-size: 10px; background: #fef3c7; color: #d97706; padding: 2px 6px; border-radius: 4px; margin-right: 5px; display: inline-block; font-weight: bold; }
+        #sliderValue { font-weight: 800; color: #334155; margin-top: 10px; font-size: 18px; }
     </style>
 </head>
 <body>
@@ -452,6 +463,23 @@
             <div class="modal-title" style="color: #f59e0b;">تنبيه</div>
             <div class="modal-text">لقد قمت بتسجيل الحضور مسبقاً في هذا المقرر اليوم.</div>
             <button onclick="document.getElementById('duplicateModal').style.display='none'" class="modal-btn btn-confirm" style="background:#334155;">حسناً</button>
+        </div>
+    </div>
+
+    <div id="evaluationModal" class="modal-overlay">
+        <div class="modal-box" style="border-top: 5px solid var(--primary);">
+            <div class="modal-title" style="color: var(--primary-dark);">تقييم انضباط الطالب</div>
+            <p id="evalStudentName" style="font-weight:bold; color:#64748b; margin-bottom:15px;">--</p>
+            
+            <div id="emojiDisplay" class="eval-emoji">😐</div>
+            
+            <div class="slider-container">
+                <input type="range" min="1" max="10" value="5" class="range-slider" id="behaviorSlider" oninput="updateSliderUI(this.value)">
+                <div id="sliderValue">عادي (5/10)</div>
+            </div>
+            
+            <button onclick="saveEvaluation()" class="btn-main">حفظ التقييم <i class="fa-solid fa-star"></i></button>
+            <button onclick="closeEvaluation()" class="btn-cancel" style="margin-top:10px;">إلغاء</button>
         </div>
     </div>
 
@@ -832,8 +860,6 @@
                     </div>
                     
                     <div class="attempts-hearts" id="attemptsHeartsContainer"></div>
-
-                    <h1 style="font-size:20px; margin-top:5px;">بيانات الطالب / الطالبة</h1>
                     <div id="dataEntryAlert" class="alert-box" style="display:none; margin-bottom: 25px; color:#ef4444; font-weight:bold;"></div>
                     <div class="input-group">
                         <input type="text" id="uniID" class="modern-input en-font" placeholder="ID" readonly style="text-align:center; font-size:20px; letter-spacing:2px; font-weight:bold; background:white;">
@@ -1065,13 +1091,17 @@
         const LOCAL_STORAGE_DB_KEY = "offline_students_db_v2";
         const ALERT_STORAGE_KEY = "persistent_student_alerts_v2";
         const DEVICE_ID_KEY = "unique_device_id_v1"; 
-        const HIGHLIGHT_STORAGE_KEY = "student_highlights_persistent"; // مفتاح حفظ التحديد
+        const HIGHLIGHT_STORAGE_KEY = "student_highlights_persistent"; 
+        const EVAL_STORAGE_KEY = "student_evaluations_v1"; // مفتاح تخزين التقييمات
 
         let studentsDB = {};
         let wakeLock = null;
         let cachedReportData = [];
         let systemAlerts = [];
         let isOpeningMaps = false;
+
+        // متغيرات التقييم المؤقتة
+        let currentEvalID = null;
 
         try {
             const savedAlerts = localStorage.getItem(ALERT_STORAGE_KEY);
@@ -2208,6 +2238,62 @@
             return list.includes(id);
         }
 
+        // ==========================================
+        //  التعديل 3: نظام التقييم (Modern Evaluation)
+        // ==========================================
+        function getEvaluations() { return JSON.parse(localStorage.getItem(EVAL_STORAGE_KEY) || "{}"); }
+        
+        function updateSliderUI(val) {
+            const display = document.getElementById('sliderValue');
+            const emoji = document.getElementById('emojiDisplay');
+            let text = "";
+            let emo = "";
+            
+            if(val <= 3) { text = `ضعيف (${val}/10)`; emo = "😡"; display.style.color = "#ef4444"; }
+            else if(val <= 6) { text = `عادي (${val}/10)`; emo = "😐"; display.style.color = "#f59e0b"; }
+            else if(val <= 8) { text = `جيد (${val}/10)`; emo = "🙂"; display.style.color = "#3b82f6"; }
+            else { text = `ممتاز (${val}/10)`; emo = "🤩"; display.style.color = "#10b981"; }
+            
+            display.innerText = text;
+            emoji.innerText = emo;
+        }
+
+        function openEvaluation(studentName, studentID) {
+            playClick();
+            currentEvalID = studentID;
+            document.getElementById('evalStudentName').innerText = studentName;
+            
+            const savedEvals = getEvaluations();
+            const savedVal = savedEvals[studentID] || 5;
+            
+            const slider = document.getElementById('behaviorSlider');
+            slider.value = savedVal;
+            updateSliderUI(savedVal);
+            
+            document.getElementById('evaluationModal').style.display = 'flex';
+        }
+
+        function closeEvaluation() {
+            playClick();
+            document.getElementById('evaluationModal').style.display = 'none';
+            currentEvalID = null;
+        }
+
+        function saveEvaluation() {
+            if(!currentEvalID) return;
+            const val = document.getElementById('behaviorSlider').value;
+            let evals = getEvaluations();
+            evals[currentEvalID] = val;
+            localStorage.setItem(EVAL_STORAGE_KEY, JSON.stringify(evals));
+            
+            playSuccess();
+            closeEvaluation();
+            
+            // تحديث القائمة الحالية لإظهار التقييم الجديد
+            const currentSub = document.getElementById('currentSubjectTitle').innerText;
+            if(currentSub !== "--") openSubjectDetails(currentSub);
+        }
+
         function openSubjectDetails(subjectName) {
             playClick();
             document.getElementById('currentSubjectTitle').innerText = subjectName;
@@ -2218,7 +2304,8 @@
                 return a.group.localeCompare(b.group, undefined, {numeric: true, sensitivity: 'base'});
             });
 
-            const highlights = getHighlights(); // جلب قائمة المحددين من الذاكرة
+            const highlights = getHighlights(); 
+            const evaluations = getEvaluations(); // جلب التقييمات
 
             let html = '';
             students.forEach(item => {
@@ -2229,14 +2316,25 @@
                 const studentID = item.uniID || "---";
                 const timeStr = item.time || "--:--";
                 
-                // تطبيق الكلاس إذا كان الطالب محفوظاً
                 const highlightClass = highlights.includes(studentID) ? 'highlighted-red' : '';
+                
+                // عرض التقييم
+                let evalBadge = "";
+                if(evaluations[studentID]) {
+                    const score = parseInt(evaluations[studentID]);
+                    let starColor = "#fbbf24";
+                    if(score <= 3) starColor = "#ef4444";
+                    else if(score >= 9) starColor = "#10b981";
+                    evalBadge = `<span class="eval-badge" style="color:${starColor}"><i class="fa-solid fa-star"></i> ${score}</span>`;
+                }
 
                 html += `
                     <div class="student-detailed-card ${highlightClass}" id="card-${studentID}">
                         <div class="st-data-col" style="width: 100%;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
-                                <div class="st-name" style="font-size:14px;">${studentName}</div>
+                                <div class="st-name" onclick="openEvaluation('${studentName}', '${studentID}')">
+                                    ${evalBadge} ${studentName}
+                                </div>
                                 <div style="display:flex;">
                                     <button class="btn-highlight-item" onclick="highlightEntry('${studentID}', '${subjectName}', this)"><i class="fa-solid fa-highlighter"></i></button>
                                     <button class="btn-delete-item" onclick="deleteEntry('${studentID}', '${subjectName}', this)" style="margin-right:5px;"><i class="fa-solid fa-trash"></i></button>
@@ -2388,5 +2486,4 @@
 </body>
 </html>
 
-
-
+                    <h1 style="font-size:20px; margin-top:5px;">بيانات الطالب / الطالبة</h1>
