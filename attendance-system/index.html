@@ -445,6 +445,9 @@
         /* MODERN CANCEL BUTTON FOR EVALUATION */
         .btn-cancel-modern { background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; border-radius: 15px; padding: 12px; width: 100%; font-weight: bold; margin-top: 10px; cursor: pointer; transition: 0.2s; }
         .btn-cancel-modern:hover { background: #e2e8f0; color: #334155; }
+
+        /* NEW TOTAL SCORE DISPLAY */
+        .total-score-display { background: #f1f5f9; padding: 10px; border-radius: 12px; margin-bottom: 15px; font-weight: bold; color: #334155; display: flex; justify-content: space-between; font-size: 13px; border: 1px solid #e2e8f0; }
     </style>
 </head>
 <body>
@@ -480,6 +483,11 @@
             <div class="modal-title" style="color: #ef4444;">تقييم عدم الانضباط</div>
             <p id="evalStudentName" style="font-weight:bold; color:#64748b; margin-bottom:15px;">--</p>
             
+            <div class="total-score-display">
+                <span>المجموع الكلي للمخالفات:</span>
+                <span id="evalCurrentTotal" class="en-font" style="color:#ef4444;">0</span>
+            </div>
+
             <div id="emojiDisplay" class="eval-emoji">😐</div>
             
             <div class="slider-container">
@@ -1080,9 +1088,10 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script>
         // ==========================================
-        //  الرابط الموحد (استخدم رابط جوجل شيت المباشر هنا)
+        //  الرابط الموحد (Master Link)
         // ==========================================
-        const MASTER_REGISTRATION_LINK = "https://script.google.com/macros/s/AKfycbxvEcPcrosT9y_uaHFnxCCadLZQJpIePlKtsMvIbPt7Ngf4s_3maHkTlPdyXUD5WcHS/exec"; // أو رابط جوجل سكربت المباشر
+        // ضع رابط جوجل سكربت المباشر هنا
+        const MASTER_REGISTRATION_LINK = "https://script.google.com/macros/s/AKfycby853_9r1Xmn8G0v4Mc_P3V9E3l8q_Y9_2W_8X7_Z1_0_5_9/exec";
 
         const GROUP_SHEET_URLS = {};
         for(let i=1; i<=20; i++) { GROUP_SHEET_URLS["1G"+i] = MASTER_REGISTRATION_LINK; }
@@ -1284,7 +1293,9 @@
         function checkStoredAlerts() {
             const btn = document.getElementById('notificationBtn');
             const container = document.getElementById('alertsListContainer');
+            
             const isAdmin = !!sessionStorage.getItem(ADMIN_AUTH_TOKEN);
+            
             document.getElementById('adminDeleteAlert').style.display = isAdmin ? 'flex' : 'none';
 
             const unreadCount = systemAlerts.filter(a => !a.isRead).length;
@@ -1455,9 +1466,16 @@
         async function requestWakeLock() { try { if('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); } catch (err) {} }
         function releaseWakeLock() { if (wakeLock !== null) { wakeLock.release().then(() => { wakeLock = null; }); } }
         
-        function getAttemptsLeft() { return 999; }
-        function decrementAttempts() { return 999; }
-        function updateUIForAttempts() { const container = document.getElementById('attemptsHeartsContainer'); if(container) container.innerHTML = ''; }
+        function getAttemptsLeft() { 
+            return 999; 
+        }
+        function decrementAttempts() { 
+            return 999; 
+        }
+        function updateUIForAttempts() { 
+            const container = document.getElementById('attemptsHeartsContainer');
+            if(container) container.innerHTML = '';
+        }
 
         window.history.pushState(null, null, window.location.href);
         window.onpopstate = function () {
@@ -1470,12 +1488,17 @@
         };
         
         function handleStrictPenalty() {}
-        window.addEventListener('beforeunload', (event) => { handleStrictPenalty(); });
+
+        window.addEventListener('beforeunload', (event) => {
+             handleStrictPenalty();
+        });
 
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'hidden') {
                 if (isOpeningMaps) { return; }
-                if (processIsActive && !sessionStorage.getItem(ADMIN_AUTH_TOKEN)) { location.reload(); }
+                if (processIsActive && !sessionStorage.getItem(ADMIN_AUTH_TOKEN)) { 
+                    location.reload(); 
+                }
                 releaseWakeLock();
             } else { 
                 if (isOpeningMaps) { isOpeningMaps = false; }
@@ -2267,11 +2290,13 @@
             emoji.innerText = emo;
         }
 
-        function openEvaluation(studentName, studentID) {
+        // === دالة فتح التقييم المعدلة لاستقبال المجموع ===
+        function openEvaluation(studentName, studentID, currentTotal = 0) {
             playClick();
             currentEvalID = studentID;
             currentEvalName = studentName;
             document.getElementById('evalStudentName').innerText = studentName;
+            document.getElementById('evalCurrentTotal').innerText = currentTotal; // عرض المجموع
             
             const savedEvals = getEvaluations();
             const savedVal = savedEvals[studentID] || 5;
@@ -2321,9 +2346,11 @@
                 closeEvaluation();
                 showToast("تم تسجيل المخالفة بنجاح", 2000, "#ef4444");
                 
-                // تحديث القائمة
+                // تحديث القائمة لإعادة جلب البيانات الجديدة (بما فيها المجموع)
+                // ملاحظة: لضمان ظهور المجموع الجديد فوراً، الأفضل إعادة فتح التقرير بالكامل
+                // ولكن هنا سنكتفي بإعادة تحميل الصفحة الحالية
                 const currentSub = document.getElementById('currentSubjectTitle').innerText;
-                if(currentSub !== "--") openSubjectDetails(currentSub);
+                if(currentSub !== "--") openReportModal(); // إعادة تحميل التقرير
 
             } catch(e) {
                 console.error(e);
@@ -2355,26 +2382,23 @@
                 const studentName = item.name || "غير معروف";
                 const studentID = item.uniID || "---";
                 const timeStr = item.time || "--:--";
+                const totalDiscipline = item.totalScore || 0; // استلام المجموع من الباك اند
                 
                 const highlightClass = highlights.includes(studentID) ? 'highlighted-red' : '';
                 
                 // عرض التقييم (إن وجد)
                 let evalBadge = "";
-                if(evaluations[studentID]) {
-                    const score = parseInt(evaluations[studentID]);
-                    let badgeColor = "#10b981"; // Green for low scores
-                    if(score >= 9) badgeColor = "#ef4444"; // Red for high scores
-                    else if(score >= 7) badgeColor = "#f59e0b";
-                    else if(score >= 4) badgeColor = "#3b82f6";
-                    
-                    evalBadge = `<span class="eval-badge" style="color:${badgeColor}"><i class="fa-solid fa-circle-exclamation"></i> ${score}</span>`;
+                if(totalDiscipline > 0) {
+                     let badgeColor = "#f59e0b";
+                     if(totalDiscipline >= 20) badgeColor = "#ef4444";
+                     evalBadge = `<span class="eval-badge" style="color:${badgeColor}; background:#fff7ed; border:1px solid ${badgeColor}"><i class="fa-solid fa-triangle-exclamation"></i> ${totalDiscipline}</span>`;
                 }
 
                 html += `
                     <div class="student-detailed-card ${highlightClass}" id="card-${studentID}">
                         <div class="st-data-col" style="width: 100%;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
-                                <div class="st-name" onclick="openEvaluation('${studentName}', '${studentID}')">
+                                <div class="st-name" onclick="openEvaluation('${studentName}', '${studentID}', ${totalDiscipline})">
                                     ${evalBadge} ${studentName}
                                 </div>
                                 <div style="display:flex;">
@@ -2527,4 +2551,3 @@
     </script>
 </body>
 </html>
-
