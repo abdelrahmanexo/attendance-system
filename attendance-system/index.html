@@ -151,7 +151,7 @@
             letter-spacing: -1px;
         }
 
-        .academic-footer { margin-top: auto; padding-top: 20px; display: flex; justify-content: center; width: 100%; position: relative; z-index: 5; }
+        .academic-footer { margin-top: auto; padding-top: 20px; display: flex; justify-content: center; width: 100%; position: relative; z-index: 5; flex-direction: column; align-items: center; }
         .faculty-title-box { display: inline-block; margin-bottom: 15px; padding: 8px 20px; border-radius: 50px; background: linear-gradient(135deg, rgba(224, 242, 254, 0.6), rgba(240, 249, 255, 0.4)); border: 1px solid rgba(255, 255, 255, 0.8); box-shadow: 0 4px 10px rgba(14, 165, 233, 0.05); backdrop-filter: blur(5px); }
         .faculty-title-text { font-size: 14px; font-weight: 800; background: linear-gradient(135deg, var(--primary-dark), var(--primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: block; }
         p { font-size: 13px; color: var(--text-sub); margin-bottom: 25px; line-height: 1.6; }
@@ -160,7 +160,7 @@
         .btn-main:active { transform: scale(0.97); }
         .btn-main:disabled { background: #64748b; cursor: not-allowed; opacity: 0.7; box-shadow: none; pointer-events: none; }
         
-        .admin-controls-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .admin-controls-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; width: 100%; }
         
         .admin-sub-btn { 
             border-radius: 18px; padding: 10px 8px; font-size: 12px; font-weight: 800; 
@@ -587,6 +587,38 @@
             font-size: 13px; 
             border: 1px solid #e2e8f0; 
         }
+
+        /* ========================================================
+           NEW STYLE: MODERN INSTALL PROMPT (PWA)
+           ======================================================== */
+        .install-prompt-box {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            color: white;
+            padding: 15px;
+            border-radius: 20px;
+            margin-top: 15px;
+            display: none; /* Hidden by default */
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 10px 25px -5px rgba(30, 41, 59, 0.3);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            border: 1px solid rgba(255,255,255,0.1);
+            animation: slideUp 0.5s ease-out;
+        }
+        .install-prompt-box:active { transform: scale(0.96); }
+        .install-icon-box {
+            width: 40px; height: 40px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; color: #38bdf8;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+        }
+        .install-text-col { text-align: right; flex: 1; padding-right: 12px; }
+        .install-title { font-size: 13px; font-weight: 800; margin-bottom: 2px; color: #f8fafc; }
+        .install-subtitle { font-size: 11px; color: #94a3b8; font-weight: 600; }
+        
     </style>
 </head>
 <body>
@@ -966,8 +998,17 @@
                                 <span>إدخال البيانات</span>
                             </button>
                         </div>
-                        <div class="academic-footer">
+                        
+                        <div id="installAppPrompt" class="install-prompt-box" onclick="triggerAppInstall()">
+                            <div class="install-icon-box"><i class="fa-solid fa-download"></i></div>
+                            <div class="install-text-col">
+                                <div class="install-title">تثبيت التطبيق</div>
+                                <div class="install-subtitle">أضف النظام للشاشة الرئيسية</div>
                             </div>
+                            <i class="fa-solid fa-chevron-left" style="font-size:12px; color:#64748b;"></i>
+                        </div>
+                        <div class="academic-footer">
+                        </div>
                     </div>
                 </div>
                 <div id="screenAdminLogin" class="section">
@@ -1326,6 +1367,41 @@
             const TIMER_CIRCUMFERENCE_FACE = 282.7;
             
             let isProcessingClick = false;
+
+            // ==========================================
+            //  PWA INSTALLATION LOGIC (ADDED HERE)
+            // ==========================================
+            let deferredPrompt;
+            const installBox = document.getElementById('installAppPrompt');
+
+            window.addEventListener('beforeinstallprompt', (e) => {
+                // Prevent the mini-infobar from appearing on mobile
+                e.preventDefault();
+                // Stash the event so it can be triggered later.
+                deferredPrompt = e;
+                // Show the install UI
+                if(installBox) installBox.style.display = 'flex';
+            });
+
+            window.addEventListener('appinstalled', () => {
+                // Hide the app-provided install promotion
+                if(installBox) installBox.style.display = 'none';
+                // Clear the deferredPrompt so it can be garbage collected
+                deferredPrompt = null;
+                showToast("شكراً لتثبيت التطبيق! 🚀", 4000, "#10b981");
+            });
+
+            function triggerAppInstall() {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    deferredPrompt.userChoice.then((choiceResult) => {
+                        if (choiceResult.outcome === 'accepted') {
+                            if(installBox) installBox.style.display = 'none';
+                        }
+                        deferredPrompt = null;
+                    });
+                }
+            }
 
             // ==========================================
             //  تعريف الدوال (Logic Functions)
@@ -2792,6 +2868,8 @@
             window.closeSelect = closeSelect;
             window.checkAllConditions = checkAllConditions;
             window.closeModernConfirm = closeModernConfirm;
+            // تصدير دالة التثبيت
+            window.triggerAppInstall = triggerAppInstall;
 
         })();
     </script>
