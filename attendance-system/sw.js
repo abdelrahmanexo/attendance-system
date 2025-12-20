@@ -1,36 +1,31 @@
-const CACHE_NAME = '7odorak-final-v1'; // تغيير الاسم هنا ضروري
-const ASSETS_TO_CACHE = [
+const CACHE_NAME = '7odork-v1';
+const urlsToCache = [
   './',
   './index.html',
   './manifest.json',
-  './icon.png',
-  './face-api.min.js'
+  './icon-192.png',
+  './icon-512.png',
+  // أضف أي ملفات CSS أو JS خارجية هنا لو حبيت
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE);
-    })
+    caches.open(CACHE_NAME)
+      .then((cache) => {
+        console.log('Opened cache');
+        return cache.addAll(urlsToCache);
+      })
   );
-  self.skipWaiting(); // إجبار السيرفر الجديد على العمل فوراً
-});
-
-self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((keys) => {
-      return Promise.all(
-        keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
-      );
-    })
-  );
-  self.clients.claim(); // السيطرة على الصفحة فوراً
 });
 
 self.addEventListener('fetch', (event) => {
   event.respondWith(
-    caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
-    })
+    caches.match(event.request)
+      .then((response) => {
+        if (response) {
+          return response;
+        }
+        return fetch(event.request);
+      })
   );
 });
