@@ -241,11 +241,30 @@
         .btn-back-report { width: 35px; height: 35px; border-radius: 10px; border: none; background: #f1f5f9; color: #475569; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         .student-detailed-card { background: white; border-radius: 14px; padding: 15px; margin-bottom: 10px; border: 1px solid #f1f5f9; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03); display: flex; justify-content: space-between; align-items: center; }
         .student-detailed-card.alert-row { background: #fff5f5; border: 1px solid #fecaca; }
-        /* === إضافة ستايل التحديد الجديد === */
+        
+        /* === NEW: Modern Badge Style for Discipline === */
+        .eval-badge-modern {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 50px;
+            font-size: 10px;
+            font-weight: 800;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            margin-left: 5px;
+            font-family: 'Outfit', sans-serif !important;
+            letter-spacing: 0.5px;
+        }
+        .eval-badge-low { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
+        .eval-badge-med { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+        .eval-badge-high { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; animation: pulse-red 2s infinite; }
+
         .student-detailed-card.highlighted-red { background: #fee2e2 !important; border: 1px solid #ef4444 !important; }
         .student-detailed-card.alert-row .st-name { color: #b91c1c; }
         .st-data-col { display: flex; flex-direction: column; gap: 4px; text-align: right; }
-        .st-name { font-weight: 800; font-size: 13px; color: #1e293b; cursor: pointer; transition: 0.2s; }
+        .st-name { font-weight: 800; font-size: 13px; color: #1e293b; cursor: pointer; transition: 0.2s; display: flex; align-items: center; }
         .st-name:active { color: var(--primary); transform: scale(0.98); }
         
         .std-time-badge { background: #ecfdf5; color: #059669; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 800; display: inline-flex; align-items: center; gap: 4px; margin-top: 5px; direction: ltr; }
@@ -360,12 +379,14 @@
 
         /* === MODIFIED DISCIPLINE SCORE IN CARD === */
         .discipline-score-display {
-            color: #ef4444; 
             font-family: 'Outfit', sans-serif !important;
             font-weight: 900;
+            font-size: 20px;
+            transition: all 0.3s ease;
         }
         .discipline-score-display.safe { color: #10b981; }
         .discipline-score-display.warn { color: #f59e0b; }
+        .discipline-score-display.danger { color: #ef4444; animation: pulse-red 2s infinite; }
 
         .qr-card-trigger { background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 20px; padding: 30px 20px; text-align: center; cursor: pointer; transition: 0.3s; margin-bottom: 15px; display: flex; flex-direction: column; align-items: center; gap: 15px; }
         .qr-card-trigger:hover { background: #f1f5f9; border-color: var(--primary); }
@@ -398,9 +419,7 @@
         .btn-confirm { background: #ef4444; color: white; }
         .btn-success-modal { background: #10b981; color: white; }
         .btn-cancel { background: #f1f5f9; color: #475569; }
-        .btn-cancel-modern { background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; border-radius: 15px; padding: 12px; width: 100%; font-weight: bold; margin-top: 10px; cursor: pointer; transition: 0.2s; }
-        .btn-cancel-modern:hover { background: #e2e8f0; color: #334155; }
-        
+
         #connectionLostModal { z-index: 20000 !important; }
         #connectionLostModal .modal-box { border: 2px solid #ef4444; position: relative; }
         .btn-close-modal-x { position: absolute; top: 15px; left: 15px; width: 30px; height: 30px; background: #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #94a3b8; font-weight: bold; border: none; }
@@ -527,9 +546,29 @@
             transition: color 0.3s;
         }
         
-        /* Modern Cancel Button */
-        .btn-cancel-modern { background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; border-radius: 15px; padding: 12px; width: 100%; font-weight: bold; margin-top: 10px; cursor: pointer; transition: 0.2s; }
-        .btn-cancel-modern:hover { background: #e2e8f0; color: #334155; }
+        /* === NEW: Modern Cancel Button Style === */
+        .btn-cancel-modern { 
+            background: #ffffff; 
+            color: #64748b; 
+            border: 2px solid #e2e8f0; 
+            border-radius: 15px; 
+            padding: 12px; 
+            width: 100%; 
+            font-weight: 800; 
+            margin-top: 10px; 
+            cursor: pointer; 
+            transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: 0 4px 6px -2px rgba(0,0,0,0.03);
+        }
+        .btn-cancel-modern:hover { 
+            background: #f8fafc; 
+            color: #334155; 
+            border-color: #cbd5e1;
+            transform: translateY(-1px);
+        }
+        .btn-cancel-modern:active {
+            transform: scale(0.98);
+        }
 
         /* Total Score Display */
         .total-score-display { 
@@ -579,7 +618,7 @@
         <div class="modal-box">
             <div style="margin-bottom: 20px;">
                 <i class="fa-solid fa-file-circle-exclamation" style="font-size: 40px; color: #ef4444; margin-bottom: 10px;"></i>
-                <div class="modal-title" style="color: #1e293b; font-size: 20px; margin-bottom: 5px;">معدل المخالفات</div>
+                <div class="modal-title" style="color: #1e293b; font-size: 20px; margin-bottom: 5px;">مؤشر عدم الانضباط</div>
                 <p id="evalStudentName" style="font-weight:bold; color:#64748b; margin: 0; font-size: 14px;">--</p>
             </div>
             
@@ -1199,8 +1238,9 @@
             // ==========================================
             // إعدادات النظام
             // ==========================================
-            const MASTER_REGISTRATION_LINK = "/api/sheet";
+            const MASTER_REGISTRATION_LINK = "/api/sheet"; // رابط الـ API
 
+            // تكوين روابط الجروبات (للمحاكاة)
             const GROUP_SHEET_URLS = {};
             for(let i=1; i<=20; i++) { GROUP_SHEET_URLS["1G"+i] = MASTER_REGISTRATION_LINK; }
             for(let i=1; i<=20; i++) { GROUP_SHEET_URLS["2G"+i] = MASTER_REGISTRATION_LINK; }
@@ -1232,6 +1272,7 @@
 
             let attendanceData = {};
 
+            // تحميل البيانات المحفوظة
             try {
                 const savedAlerts = localStorage.getItem(ALERT_STORAGE_KEY);
                 if (savedAlerts) systemAlerts = JSON.parse(savedAlerts);
@@ -1242,6 +1283,7 @@
                 try { studentsDB = JSON.parse(savedDB); } catch(e) {}
             }
             
+            // محاولة تحديث قاعدة البيانات في الخلفية
             fetch(CONFIG.sheetApiUrl).then(r => r.json()).then(d => { if(!d.error) { studentsDB = d; localStorage.setItem(LOCAL_STORAGE_DB_KEY, JSON.stringify(d)); } }).catch(e => console.log("DB Fetch Error"));
 
             let defaultSubjects = {
@@ -1844,7 +1886,24 @@
                 if (studentName) {
                     attendanceData.uniID = uniIdVal; attendanceData.name = studentName;
                     sessionStorage.setItem(TEMP_ID_KEY, uniIdVal); sessionStorage.setItem(TEMP_NAME_KEY, studentName);
-                    document.getElementById('scanNameDisplay').innerText = studentName; document.getElementById('scanIDDisplay').innerText = uniIdVal;
+                    
+                    document.getElementById('scanNameDisplay').innerText = studentName; 
+                    document.getElementById('scanIDDisplay').innerText = uniIdVal;
+                    
+                    // === منطق عرض درجة الانضباط في شاشة المسح ===
+                    const evals = getEvaluations();
+                    const score = evals[uniIdVal] || 0;
+                    const disciplineDisplay = document.getElementById('scanDisciplineDisplay');
+                    disciplineDisplay.innerText = score;
+                    
+                    if (score == 0) {
+                        disciplineDisplay.className = "student-info-value discipline-score-display safe";
+                    } else if (score < 9) {
+                        disciplineDisplay.className = "student-info-value discipline-score-display warn";
+                    } else {
+                        disciplineDisplay.className = "student-info-value discipline-score-display danger";
+                    }
+
                     if(countdownInterval) clearInterval(countdownInterval); stopCameraSafely(); switchScreen('screenScanQR'); playSuccess();
                 } else { alertBox.innerText = "❌ الكود غير صحيح."; alertBox.style.display = 'block'; if(navigator.vibrate) navigator.vibrate(300); }
             }
@@ -2418,14 +2477,15 @@
                 currentEvalID = studentID;
                 currentEvalName = studentName;
                 document.getElementById('evalStudentName').innerText = studentName;
-                document.getElementById('evalCurrentTotal').innerText = currentTotal; 
                 
+                // عرض المجموع الكلي كما طلبت
                 const savedEvals = getEvaluations();
-                const savedVal = savedEvals[studentID] || 1; // Default to 1 (Low indiscipline)
+                const totalScore = savedEvals[studentID] || 0; // استخدام المخزون المحلي للأداء الأسرع
+                document.getElementById('evalCurrentTotal').innerText = totalScore; 
                 
                 const slider = document.getElementById('behaviorSlider');
-                slider.value = savedVal;
-                updateSliderUI(savedVal);
+                slider.value = 1; // Default to 1 for new offense
+                updateSliderUI(1);
                 
                 document.getElementById('evaluationModal').style.display = 'flex';
             }
@@ -2439,11 +2499,12 @@
 
             async function saveEvaluation() {
                 if(!currentEvalID) return;
-                const val = document.getElementById('behaviorSlider').value;
+                const val = parseInt(document.getElementById('behaviorSlider').value);
                 
-                // 1. حفظ محلي
+                // 1. حفظ محلي (تراكمي)
                 let evals = getEvaluations();
-                evals[currentEvalID] = val;
+                const oldVal = parseInt(evals[currentEvalID] || 0);
+                evals[currentEvalID] = oldVal + val;
                 localStorage.setItem(EVAL_STORAGE_KEY, JSON.stringify(evals));
                 
                 // 2. إرسال لجوجل شيت (تراكمي)
@@ -2470,7 +2531,7 @@
                     
                     // تحديث القائمة لإعادة جلب البيانات الجديدة (بما فيها المجموع)
                     const currentSub = document.getElementById('currentSubjectTitle').innerText;
-                    if(currentSub !== "--") openReportModal(); // إعادة تحميل التقرير
+                    if(currentSub !== "--") openSubjectDetails(currentSub); // تحديث القائمة الحالية
 
                 } catch(e) {
                     console.error(e);
@@ -2479,6 +2540,26 @@
                 } finally {
                     btn.innerHTML = originalText;
                 }
+            }
+
+            // === دالة إنشاء الشارة الفخمة (Luxury Badge) ===
+            function getDisciplineBadge(score) {
+                if (score <= 0) return '';
+                
+                let badgeClass = 'eval-badge-low';
+                let icon = 'fa-circle-exclamation';
+                
+                if (score >= 4 && score < 9) {
+                    badgeClass = 'eval-badge-med';
+                    icon = 'fa-triangle-exclamation';
+                } else if (score >= 9) {
+                    badgeClass = 'eval-badge-high';
+                    icon = 'fa-fire';
+                }
+                
+                return `<span class="eval-badge-modern ${badgeClass}">
+                            <i class="fa-solid ${icon}"></i> ${score}
+                        </span>`;
             }
 
             function openSubjectDetails(subjectName) {
@@ -2502,24 +2583,21 @@
                     const studentName = item.name || "غير معروف";
                     const studentID = item.uniID || "---";
                     const timeStr = item.time || "--:--";
-                    const totalDiscipline = item.totalScore || 0; 
+                    
+                    // الحصول على الدرجة من المخزون المحلي لتكون محدثة دائماً
+                    const totalDiscipline = evaluations[studentID] || 0; 
                     
                     const highlightClass = highlights.includes(studentID) ? 'highlighted-red' : '';
                     
-                    // عرض التقييم (إن وجد)
-                    let evalBadge = "";
-                    if(totalDiscipline > 0) {
-                         let badgeColor = "#f59e0b";
-                         if(totalDiscipline >= 25) badgeColor = "#ef4444"; // Limit matches GAS logic
-                         evalBadge = `<span class="eval-badge" style="color:${badgeColor}; background:#fff7ed; border:1px solid ${badgeColor}"><i class="fa-solid fa-triangle-exclamation"></i> ${totalDiscipline}</span>`;
-                    }
+                    // استخدام دالة الشارة الجديدة
+                    const evalBadge = getDisciplineBadge(totalDiscipline);
 
                     html += `
                         <div class="student-detailed-card ${highlightClass}" id="card-${studentID}">
                             <div class="st-data-col" style="width: 100%;">
                                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
                                     <div class="st-name" onclick="openEvaluation('${studentName}', '${studentID}', ${totalDiscipline})">
-                                        ${evalBadge} ${studentName}
+                                        ${studentName} ${evalBadge}
                                     </div>
                                     <div style="display:flex;">
                                         <button class="btn-highlight-item" onclick="highlightEntry('${studentID}', '${subjectName}', this)"><i class="fa-solid fa-highlighter"></i></button>
@@ -2657,6 +2735,7 @@
             
             if (!isMobileDevice()) { document.getElementById('desktop-blocker').style.display = 'flex'; document.body.style.overflow = 'hidden'; throw new Error("Desktop access denied."); }
 
+            // تصدير الدوال للاستخدام العام
             window.startProcess = startProcess;
             window.handleIdSubmit = handleIdSubmit;
             window.generateCodeAndShowDataEntry = generateCodeAndShowDataEntry;
@@ -2725,4 +2804,3 @@
     </script>
 </body>
 </html>
-
