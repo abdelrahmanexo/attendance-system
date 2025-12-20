@@ -28,14 +28,14 @@
       "sizes": "1280x1280",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "الواجهة الرئيسية للكمبيوتر"
+      "label": "واجهة النظام للكمبيوتر"
     },
     {
       "src": "icon.png",
       "sizes": "1280x1280",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "واجهة الموبايل"
+      "label": "واجهة النظام للموبايل"
     }
   ]
 }
