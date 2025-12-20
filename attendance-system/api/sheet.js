@@ -3,7 +3,7 @@
 // 1. ثوابت الموقع (مؤمنة في السيرفر)
 const COLLEGE_LAT = 30.385839819568105;
 const COLLEGE_LNG = 30.488877976075997;
-const ALLOWED_DISTANCE_KM = 5; // 5000 متر
+const ALLOWED_DISTANCE_KM = 50; // 50000 متر
 
 export default async function handler(req, res) {
     // إعدادات CORS (السماح فقط لموقعك إذا أردت زيادة الأمان استبدل * برابط موقعك)
@@ -112,4 +112,5 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
 function deg2rad(deg) {
     return deg * (Math.PI / 180);
 }
+
 
