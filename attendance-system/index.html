@@ -12,7 +12,7 @@
     <link rel="apple-touch-icon" href="icon.png">
     <link rel="icon" href="icon.png" type="image/png">
     
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Outfit:wght@500;700;900&family=Reem+Kufi:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Outfit:wght@500;700;900&family=Reem+Kufi:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
@@ -21,7 +21,18 @@
     <style>
         /* === الأساسيات === */
         #desktop-blocker { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f172a; color: #ef4444; z-index: 2147483647; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; font-family: 'Cairo'; }
-        :root { --primary: #0ea5e9; --primary-dark: #0284c7; --text-main: #1e293b; --text-sub: #64748b; --glass-bg: rgba(255, 255, 255, 0.95); --danger: #ef4444; --success: #10b981; --warning: #f59e0b; }
+        :root { 
+            --primary: #0ea5e9; 
+            --primary-dark: #0284c7; 
+            --text-main: #1e293b; 
+            --text-sub: #64748b; 
+            --glass-bg: rgba(255, 255, 255, 0.95); 
+            --danger: #ef4444; 
+            --success: #10b981; 
+            --warning: #f59e0b; 
+            --slider-track-height: 12px;
+            --slider-thumb-size: 28px;
+        }
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         html { background-color: #e0f2fe !important; height: 100vh; overflow-y: auto; overflow-x: hidden; } 
         
@@ -324,6 +335,7 @@
         .timer-number { font-size: 20px; font-weight: 900; color: #334155; line-height: 1; font-family: 'Outfit', sans-serif !important; }
         .timer-label { font-size: 9px; color: #94a3b8; font-weight: 700; }
         .timer-pulse { animation: pulse-red 1s infinite; }
+        
         .student-info-card { background: linear-gradient(135deg, #f8fafc, #e0f2fe); border-radius: 20px; padding: 25px; margin-bottom: 25px; box-shadow: 0 10px 30px -10px rgba(14, 165, 233, 0.2); border: 1px solid #bae6fd; text-align: right; position: relative; overflow: hidden; }
         .student-info-card::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0) 70%); opacity: 0.5; pointer-events: none; }
         .student-info-item { margin-bottom: 15px; position: relative; padding-right: 45px; z-index: 2; }
@@ -332,6 +344,29 @@
         .student-info-label { font-size: 12px; color: var(--text-sub); font-weight: 700; display: block; margin-bottom: 4px; }
         .student-info-value { font-size: 18px; font-weight: 900; color: var(--text-main); display: block; }
         #scanIDDisplay { color: var(--primary-dark); letter-spacing: 1px; font-family: 'Outfit', sans-serif !important; }
+        
+        /* === MODIFIED SCAN TITLE === */
+        .scan-title-modern {
+            font-size: 24px;
+            font-weight: 900;
+            margin-top: 10px;
+            margin-bottom: 15px;
+            background: linear-gradient(to right, #0ea5e9, #6366f1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-family: 'Reem Kufi', sans-serif;
+            text-shadow: 0 2px 10px rgba(99, 102, 241, 0.2);
+        }
+
+        /* === MODIFIED DISCIPLINE SCORE IN CARD === */
+        .discipline-score-display {
+            color: #ef4444; 
+            font-family: 'Outfit', sans-serif !important;
+            font-weight: 900;
+        }
+        .discipline-score-display.safe { color: #10b981; }
+        .discipline-score-display.warn { color: #f59e0b; }
+
         .qr-card-trigger { background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 20px; padding: 30px 20px; text-align: center; cursor: pointer; transition: 0.3s; margin-bottom: 15px; display: flex; flex-direction: column; align-items: center; gap: 15px; }
         .qr-card-trigger:hover { background: #f1f5f9; border-color: var(--primary); }
         .qr-card-icon { width: 60px; height: 60px; background: #e0f2fe; color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; animation: pulse-blue 2s infinite; }
@@ -344,7 +379,6 @@
         .scanner-laser { position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(to right, transparent, #ef4444, transparent); box-shadow: 0 0 4px #ef4444; z-index: 10; animation: scanning 2s infinite alternate; display: none; }
         .scan-success-badge { background: #ecfdf5; color: #10b981; border: 1px solid #d1fae5; padding: 15px; border-radius: 15px; font-weight: 700; font-size: 14px; display: none; align-items: center; justify-content: center; gap: 10px; margin-bottom: 15px; animation: popUp 0.4s; }
         
-        /* تعديل المودال ليكون أكثر أناقة */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 99999999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(8px); animation: fadeIn 0.3s ease-out; }
         .modal-box { 
             background: rgba(255, 255, 255, 0.95); 
@@ -364,7 +398,6 @@
         .btn-confirm { background: #ef4444; color: white; }
         .btn-success-modal { background: #10b981; color: white; }
         .btn-cancel { background: #f1f5f9; color: #475569; }
-        /* MODERN CANCEL BUTTON */
         .btn-cancel-modern { background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; border-radius: 15px; padding: 12px; width: 100%; font-weight: bold; margin-top: 10px; cursor: pointer; transition: 0.2s; }
         .btn-cancel-modern:hover { background: #e2e8f0; color: #334155; }
         
@@ -431,23 +464,87 @@
         /* تعديل 6: مودال التكرار */
         #duplicateModal .modal-box { border-top: 5px solid #f59e0b; }
 
-        /* === Styles for Evaluation Modal === */
-        /* Z-INDEX FIX: أعلى من التقرير */
+        /* === Styles for MODERN Evaluation Modal === */
         #evaluationModal { z-index: 2147483647 !important; }
-        .slider-container { margin: 20px 0; padding: 10px; background: #f8fafc; border-radius: 15px; }
-        .range-slider { width: 100%; -webkit-appearance: none; height: 10px; border-radius: 5px; background: #e2e8f0; outline: none; transition: background 0.3s; }
-        .range-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 25px; height: 25px; border-radius: 50%; background: var(--primary); cursor: pointer; border: 3px solid #fff; box-shadow: 0 0 10px rgba(0,0,0,0.1); transition: 0.2s; }
-        .range-slider::-webkit-slider-thumb:hover { transform: scale(1.1); }
-        .eval-emoji { font-size: 60px; margin-bottom: 5px; display: block; animation: popUp 0.3s; transition: 0.2s; }
-        .eval-badge { font-size: 10px; background: #fef3c7; color: #d97706; padding: 2px 6px; border-radius: 4px; margin-right: 5px; display: inline-block; font-weight: bold; }
-        #sliderValue { font-weight: 800; color: #334155; margin-top: 10px; font-size: 18px; }
+        /* Glassmorphism Effect */
+        #evaluationModal .modal-box {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border-top: none;
+            border-radius: 32px;
+            padding: 35px 25px;
+        }
+
+        .slider-container { margin: 30px 0 20px 0; padding: 0; background: transparent; }
         
-        /* MODERN CANCEL BUTTON FOR EVALUATION */
+        /* The Range Slider Track */
+        .range-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: var(--slider-track-height);
+            border-radius: 10px;
+            outline: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            /* Dynamic background set via JS */
+            background: linear-gradient(to right, #e2e8f0 0%, #e2e8f0 100%);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        /* The Range Slider Thumb */
+        .range-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: var(--slider-thumb-size);
+            height: var(--slider-thumb-size);
+            border-radius: 50%;
+            background: #ffffff;
+            cursor: pointer;
+            border: 1px solid rgba(0,0,0,0.1);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            margin-top: -8px; /* Center thumb */
+        }
+        
+        .range-slider::-webkit-slider-thumb:hover { transform: scale(1.15); }
+        .range-slider:active::-webkit-slider-thumb { transform: scale(0.95); }
+
+        /* Dynamic classes for slider track colors (handled by JS) */
+        .slider-green::-webkit-slider-thumb { border: 4px solid #10b981; }
+        .slider-yellow::-webkit-slider-thumb { border: 4px solid #f59e0b; }
+        .slider-orange::-webkit-slider-thumb { border: 4px solid #f97316; }
+        .slider-red::-webkit-slider-thumb { border: 4px solid #ef4444; }
+
+        #sliderValue {
+            font-weight: 900;
+            color: #334155;
+            margin-top: 15px;
+            font-size: 20px;
+            transition: color 0.3s;
+        }
+        
+        /* Modern Cancel Button */
         .btn-cancel-modern { background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; border-radius: 15px; padding: 12px; width: 100%; font-weight: bold; margin-top: 10px; cursor: pointer; transition: 0.2s; }
         .btn-cancel-modern:hover { background: #e2e8f0; color: #334155; }
 
-        /* NEW TOTAL SCORE DISPLAY */
-        .total-score-display { background: #f1f5f9; padding: 10px; border-radius: 12px; margin-bottom: 15px; font-weight: bold; color: #334155; display: flex; justify-content: space-between; font-size: 13px; border: 1px solid #e2e8f0; }
+        /* Total Score Display */
+        .total-score-display { 
+            background: #f8fafc; 
+            padding: 12px 15px; 
+            border-radius: 16px; 
+            margin-bottom: 20px; 
+            font-weight: bold; 
+            color: #475569; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            font-size: 13px; 
+            border: 1px solid #e2e8f0; 
+        }
     </style>
 </head>
 <body>
@@ -479,23 +576,26 @@
     </div>
 
     <div id="evaluationModal" class="modal-overlay">
-        <div class="modal-box" style="border-top: 5px solid #ef4444;">
-            <div class="modal-title" style="color: #ef4444;">تقييم عدم الانضباط</div>
-            <p id="evalStudentName" style="font-weight:bold; color:#64748b; margin-bottom:15px;">--</p>
+        <div class="modal-box">
+            <div style="margin-bottom: 20px;">
+                <i class="fa-solid fa-file-circle-exclamation" style="font-size: 40px; color: #ef4444; margin-bottom: 10px;"></i>
+                <div class="modal-title" style="color: #1e293b; font-size: 20px; margin-bottom: 5px;">معدل المخالفات</div>
+                <p id="evalStudentName" style="font-weight:bold; color:#64748b; margin: 0; font-size: 14px;">--</p>
+            </div>
             
             <div class="total-score-display">
                 <span>المجموع الكلي للمخالفات:</span>
-                <span id="evalCurrentTotal" class="en-font" style="color:#ef4444;">0</span>
+                <span id="evalCurrentTotal" class="en-font" style="color:#ef4444; font-size: 16px;">0</span>
             </div>
 
-            <div id="emojiDisplay" class="eval-emoji">😐</div>
-            
             <div class="slider-container">
-                <input type="range" min="1" max="10" value="5" class="range-slider" id="behaviorSlider" oninput="updateSliderUI(this.value)">
-                <div id="sliderValue">درجة الانضباط (5/10)</div>
+                <input type="range" min="1" max="10" value="1" class="range-slider slider-green" id="behaviorSlider" oninput="updateSliderUI(this.value)">
+                <div id="sliderValue">مخالفة بسيطة (1/10)</div>
             </div>
             
-            <button onclick="saveEvaluation()" class="btn-main" style="background: linear-gradient(135deg, #ef4444, #b91c1c);">حفظ المخالفة <i class="fa-solid fa-triangle-exclamation"></i></button>
+            <button onclick="saveEvaluation()" class="btn-main" style="background: linear-gradient(135deg, #ef4444, #b91c1c); box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.4);">
+                تسجيل المخالفة <i class="fa-solid fa-triangle-exclamation"></i>
+            </button>
             <button onclick="closeEvaluation()" class="btn-cancel-modern">إلغاء</button>
         </div>
     </div>
@@ -841,7 +941,6 @@
                         <i class="fa-solid fa-arrow-left"></i>
                     </button>
                 </div>
-
                 <div id="screenLoading" class="section">
                     <h1 style="margin-top: 10px;">جاري التحقق...</h1>
                     <i class="fa-solid fa-circle-notch fa-spin" style="font-size:40px; color:var(--primary); margin: 20px 0;"></i>
@@ -852,6 +951,7 @@
                         <span>فتح الخريطة (لتنشيط GPS)</span>
                     </button>
                 </div>
+
                 <div id="screenReadyToStart" class="section">
                     <div style="margin: 30px 0;">
                         <i class="fa-solid fa-map-location-dot" style="font-size: 60px; color: #10b981; animation: popUp 0.5s;"></i>
@@ -902,6 +1002,7 @@
                     
                     <button type="button" onclick="handleIdSubmit()" class="btn-main" id="nextStepBtn" style="margin-top:20px;">التالي <i class="fa-solid fa-arrow-left"></i></button>
                 </div>
+
                 <div id="screenFaceCheck" class="section">
                     <h1>التعرف على الهوية</h1>
                     <div class="cam-container" id="camBorder">
@@ -927,7 +1028,8 @@
                 </div>
                 
                 <div id="screenScanQR" class="section">
-                    <h1 style="font-size:20px; margin-top:10px;">مسح رمز الحضور</h1>
+                    <h1 class="scan-title-modern">مسح رمز الحضور</h1>
+                    
                     <div class="student-info-card">
                         <div class="student-info-item">
                             <div class="student-info-icon"><i class="fa-solid fa-user-graduate"></i></div>
@@ -938,6 +1040,11 @@
                             <div class="student-info-icon"><i class="fa-solid fa-id-card"></i></div>
                             <span class="student-info-label">الكود الجامعي (ID)</span>
                             <span class="student-info-value en-font" id="scanIDDisplay">--</span>
+                        </div>
+                        <div class="student-info-item">
+                            <div class="student-info-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                            <span class="student-info-label">مؤشر عدم الانضباط</span>
+                            <span class="student-info-value discipline-score-display" id="scanDisciplineDisplay">0</span>
                         </div>
                     </div>
                     
@@ -963,6 +1070,7 @@
                             <option value="second_year">الفرقة الثانية</option>
                         </select>
                     </div>
+                    
                     <div class="custom-select-wrapper disabled" id="groupSelectWrapper">
                         <label class="custom-select-label">رقم المجموعة (الجروب)</label>
                         <div class="custom-select-trigger" data-default-text="-- اختر الفرقة أولاً --">
@@ -1087,39 +1195,7 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script>
-        // ==========================================
-        //  الحل الأمني 2 و 3: تعطيل الاختصارات وفخ المطورين
-        // ==========================================
-        
-        // 1. تعطيل كليك يمين والاختصارات المعروفة
-        document.addEventListener('contextmenu', event => event.preventDefault());
-        document.onkeydown = function(e) {
-            if(e.keyCode == 123) return false; // F12
-            if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false; // Ctrl+Shift+I
-            if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) return false; // Ctrl+Shift+J
-            if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false; // Ctrl+U
-        };
-
-        // 2. فخ "مصيدة المطورين" (Debugger Trap)
-        // سيقوم بتجميد المتصفح إذا حاول الطالب فتح الـ Console
         (function() {
-            const threshold = 160;
-            setInterval(() => {
-                const widthThreshold = window.outerWidth - window.innerWidth > threshold;
-                const heightThreshold = window.outerHeight - window.innerHeight > threshold;
-                if (widthThreshold || heightThreshold) {
-                    document.body.innerHTML = '<h1 style="color:red;text-align:center;margin-top:50px;font-family:Cairo">غير مسموح بفتح أدوات المطورين 🚫</h1>';
-                    (function() { debugger; })(); 
-                }
-            }, 1000);
-        })();
-
-        // ==========================================
-        //  الحل الأمني 1: إخفاء المتغيرات (IIFE)
-        // ==========================================
-        (function() {
-            // جميع المتغيرات هنا خاصة ولا يمكن الوصول إليها من الـ Console
-            
             // ==========================================
             // إعدادات النظام
             // ==========================================
@@ -1154,7 +1230,6 @@
             let currentEvalID = null;
             let currentEvalName = null;
 
-            // المتغير الحساس أصبح محمياً الآن
             let attendanceData = {};
 
             try {
@@ -1491,6 +1566,11 @@
                 
                 const btn = document.getElementById('submitBtn'); btn.disabled = true; btn.style.opacity = "0.6"; btn.style.cursor = "not-allowed"; btn.innerHTML = 'تأكيد الحضور <i class="fa-solid fa-paper-plane"></i>';
                 document.getElementById('scanNameDisplay').innerText = '--'; document.getElementById('scanIDDisplay').innerText = '--';
+                
+                // Reset discipline display in Scan Card
+                document.getElementById('scanDisciplineDisplay').innerText = "0";
+                document.getElementById('scanDisciplineDisplay').className = "student-info-value discipline-score-display safe";
+
                 const verifyBtn = document.getElementById('btnVerify');
                 if(verifyBtn) { verifyBtn.innerHTML = '<i class="fa-solid fa-fingerprint"></i> التحقق من الهوية'; verifyBtn.style.background = 'linear-gradient(135deg, #6366f1, #4f46e5)'; verifyBtn.style.display = 'flex'; verifyBtn.classList.remove('disabled'); }
                 const bypassCheck = document.getElementById('bypassCheckbox'); if(bypassCheck) bypassCheck.checked = false;
@@ -2296,49 +2376,52 @@
             }
 
             // ==========================================
-            //  التعديل 3: نظام التقييم (Modern Evaluation) - تصاعدي
+            //  التعديل 3: نظام التقييم الحديث (Indiscipline)
             // ==========================================
             function getEvaluations() { return JSON.parse(localStorage.getItem(EVAL_STORAGE_KEY) || "{}"); }
             
             function updateSliderUI(val) {
                 const display = document.getElementById('sliderValue');
-                const emoji = document.getElementById('emojiDisplay');
-                let text = "";
-                let emo = "";
+                const slider = document.getElementById('behaviorSlider');
+                // 1 -> 10 (Indiscipline)
+                // 1 = Minor, 10 = Severe
                 
-                // Logic Reversed: 1 = Good, 10 = Bad
-                if(val <= 3) { 
-                    text = `منضبط (${val}/10)`; 
-                    emo = "⭐"; 
-                    display.style.color = "#10b981"; // Green
-                } else if(val <= 6) { 
-                    text = `عادي (${val}/10)`; 
-                    emo = "😐"; 
-                    display.style.color = "#3b82f6"; // Blue
-                } else if(val <= 8) { 
-                    text = `مشاغب قليلاً (${val}/10)`; 
-                    emo = "🤨"; 
-                    display.style.color = "#f59e0b"; // Orange
-                } else { 
-                    text = `غير منضبط جداً (${val}/10)`; 
-                    emo = "😡"; 
-                    display.style.color = "#ef4444"; // Red
+                let colorClass = "slider-green";
+                let text = `مخالفة بسيطة (${val}/10)`;
+                let colorHex = "#10b981";
+
+                if(val >= 4 && val <= 6) { 
+                    colorClass = "slider-yellow"; 
+                    text = `مخالفة متوسطة (${val}/10)`; 
+                    colorHex = "#f59e0b";
                 }
+                else if(val >= 7 && val <= 8) { 
+                    colorClass = "slider-orange"; 
+                    text = `مخالفة مرتفعة (${val}/10)`; 
+                    colorHex = "#f97316";
+                }
+                else if(val >= 9) { 
+                    colorClass = "slider-red"; 
+                    text = `مخالفة جسيمة (${val}/10)`; 
+                    colorHex = "#ef4444";
+                }
+
+                // Update classes dynamically
+                slider.className = "range-slider " + colorClass;
                 
                 display.innerText = text;
-                emoji.innerText = emo;
+                display.style.color = colorHex;
             }
 
-            // === دالة فتح التقييم المعدلة لاستقبال المجموع ===
             function openEvaluation(studentName, studentID, currentTotal = 0) {
                 playClick();
                 currentEvalID = studentID;
                 currentEvalName = studentName;
                 document.getElementById('evalStudentName').innerText = studentName;
-                document.getElementById('evalCurrentTotal').innerText = currentTotal; // عرض المجموع
+                document.getElementById('evalCurrentTotal').innerText = currentTotal; 
                 
                 const savedEvals = getEvaluations();
-                const savedVal = savedEvals[studentID] || 5;
+                const savedVal = savedEvals[studentID] || 1; // Default to 1 (Low indiscipline)
                 
                 const slider = document.getElementById('behaviorSlider');
                 slider.value = savedVal;
@@ -2373,7 +2456,7 @@
                     params.append("action", "add_discipline");
                     params.append("id", currentEvalID);
                     params.append("name", currentEvalName);
-                    params.append("score", val); // القيمة الحالية (1-10)
+                    params.append("score", val); 
                     
                     await fetch(MASTER_REGISTRATION_LINK, { 
                         method: 'POST', 
@@ -2419,7 +2502,7 @@
                     const studentName = item.name || "غير معروف";
                     const studentID = item.uniID || "---";
                     const timeStr = item.time || "--:--";
-                    const totalDiscipline = item.totalScore || 0; // استلام المجموع من الباك اند
+                    const totalDiscipline = item.totalScore || 0; 
                     
                     const highlightClass = highlights.includes(studentID) ? 'highlighted-red' : '';
                     
@@ -2427,7 +2510,7 @@
                     let evalBadge = "";
                     if(totalDiscipline > 0) {
                          let badgeColor = "#f59e0b";
-                         if(totalDiscipline >= 20) badgeColor = "#ef4444";
+                         if(totalDiscipline >= 25) badgeColor = "#ef4444"; // Limit matches GAS logic
                          evalBadge = `<span class="eval-badge" style="color:${badgeColor}; background:#fff7ed; border:1px solid ${badgeColor}"><i class="fa-solid fa-triangle-exclamation"></i> ${totalDiscipline}</span>`;
                     }
 
@@ -2523,7 +2606,6 @@
                 playClick();
                 const card = btn.closest('.student-detailed-card');
                 
-                // حفظ التحديد في الذاكرة المحلية أولاً
                 const isNowHighlighted = toggleHighlightStorage(id);
 
                 if (isNowHighlighted) {
@@ -2532,7 +2614,6 @@
                     card.classList.remove('highlighted-red');
                 }
 
-                // إرسال للسيرفر (اختياري للحفظ المركزي)
                 try {
                     const params = new URLSearchParams();
                     params.append("action", "highlightUser");
@@ -2576,9 +2657,6 @@
             
             if (!isMobileDevice()) { document.getElementById('desktop-blocker').style.display = 'flex'; document.body.style.overflow = 'hidden'; throw new Error("Desktop access denied."); }
 
-            // ==========================================
-            // ربط الدوال بالـ Window لتصبح متاحة للـ HTML
-            // ==========================================
             window.startProcess = startProcess;
             window.handleIdSubmit = handleIdSubmit;
             window.generateCodeAndShowDataEntry = generateCodeAndShowDataEntry;
@@ -2633,7 +2711,7 @@
             window.checkAllConditions = checkAllConditions;
             window.closeModernConfirm = closeModernConfirm;
 
-        })(); // نهاية الدالة المغلقة (IIFE)
+        })();
     </script>
     
     <script>
@@ -2647,5 +2725,3 @@
     </script>
 </body>
 </html>
-
-
