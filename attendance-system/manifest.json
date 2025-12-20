@@ -1,23 +1,24 @@
 {
   "name": "7odorak",
   "short_name": "7odorak",
-  "start_url": "./index.html",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#e0f2fe",
   "theme_color": "#0ea5e9",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "icon.png",
-      "sizes": "192x192", 
+      "src": "./icon.png",
+      "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
-      "src": "icon.png",
+      "src": "./icon.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     }
   ]
 }
