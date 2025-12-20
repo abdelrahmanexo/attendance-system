@@ -28,14 +28,14 @@
       "sizes": "1280x1280",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "واجهة النظام للكمبيوتر"
+      "label": "Home Screen Desktop"
     },
     {
       "src": "icon.png",
       "sizes": "1280x1280",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "واجهة النظام للموبايل"
+      "label": "Home Screen Mobile"
     }
   ]
 }
