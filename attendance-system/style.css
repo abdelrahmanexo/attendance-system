@@ -594,3 +594,235 @@ p { font-size: 13px; color: var(--text-sub); margin-bottom: 25px; line-height: 1
 .install-text-col { text-align: right; flex: 1; padding-right: 12px; }
 .install-title { font-size: 13px; font-weight: 800; margin-bottom: 2px; color: #f8fafc; }
 .install-subtitle { font-size: 11px; color: #94a3b8; font-weight: 600; }
+.export-btn-inline {
+    position: absolute;
+    top: 50%;
+    left: 15px;
+    transform: translateY(-50%);
+    background: #10b981; /* لون أخضر إكسل */
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: 0.3s;
+    z-index: 10;
+}
+
+.export-btn-inline:hover {
+    background: #059669;
+    box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
+}
+
+/* لضمان عدم تداخل النص مع الزر في الشاشات الصغيرة */
+.sub-card-info {
+    padding-left: 80px !important; 
+}
+/* تصميم الكروت */
+.modern-card-action {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 15px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+    transition: transform 0.2s;
+}
+.card-label {
+    font-size: 12px;
+    font-weight: 800;
+    color: #64748b;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* تصميم القائمة المنسدلة الحديث */
+.modern-select-wrapper {
+    position: relative;
+    width: 100%;
+}
+.modern-select-input {
+    width: 100%;
+    padding: 12px 15px;
+    appearance: none; /* إخفاء السهم الافتراضي القبيح */
+    -webkit-appearance: none;
+    background-color: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    font-family: 'Cairo', sans-serif;
+    font-weight: 700;
+    color: #334155;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.3s;
+}
+.modern-select-input:focus {
+    border-color: #0ea5e9;
+    background-color: white;
+    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+}
+.select-arrow {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    pointer-events: none;
+    font-size: 12px;
+}
+
+/* زر الرفع */
+.btn-action-modern {
+    width: 100%;
+    padding: 12px;
+    border-radius: 12px;
+    border: none;
+    font-family: 'Cairo', sans-serif;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: 0.2s;
+}
+.upload-btn {
+    background: #16a34a;
+    color: white;
+    box-shadow: 0 4px 12px rgba(22, 163, 74, 0.2);
+}
+.upload-btn:active { transform: scale(0.98); }
+
+/* الفاصل */
+.separator-line {
+    text-align: center;
+    margin: 15px 0;
+    font-size: 12px;
+    color: #94a3b8;
+    position: relative;
+}
+.separator-line::before, .separator-line::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 40%;
+    height: 1px;
+    background: #e2e8f0;
+}
+.separator-line::before { right: 0; }
+.separator-line::after { left: 0; }
+
+/* زر السجل */
+.btn-history-modern {
+    width: 100%;
+    padding: 12px;
+    border-radius: 12px;
+    background: white;
+    border: 2px dashed #cbd5e1;
+    color: #64748b;
+    font-weight: 700;
+    font-family: 'Cairo', sans-serif;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: 0.2s;
+}
+.btn-history-modern:hover {
+    border-color: #f97316;
+    color: #f97316;
+    background: #fff7ed;
+}
+/* زر تنزيل الإكسيل في الكارت */
+.btn-download-excel {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid #dcfce7;
+    background: #f0fdf4;
+    color: #16a34a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 18px;
+    transition: all 0.2s;
+    margin-left: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+.btn-download-excel:hover {
+    background: #16a34a;
+    color: white;
+    transform: scale(1.1);
+}
+.btn-download-excel:active {
+    transform: scale(0.95);
+}
+/* تنسيق مستطيل الخطأ الأحمر (مودرن) */
+.alert-box {
+    background-color: #fee2e2; /* لون أحمر فاتح هادي */
+    color: #991b1b;            /* لون النص أحمر غامق */
+    border: 1px solid #fecaca; /* حدود ناعمة */
+    padding: 12px 15px;
+    border-radius: 12px;       /* حواف دائرية */
+    margin-bottom: 20px;
+    font-size: 13px;
+    font-weight: 800;
+    display: none;             /* مخفي في البداية */
+    align-items: center;
+    justify-content: center;
+    gap: 8px;                  /* مسافة بين النص والأيقونة */
+    animation: shake 0.4s ease-in-out; /* حركة الاهتزاز */
+}
+
+/* كود حركة الاهتزاز */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+/* تنسيق التنبيهات المودرن (Toast) */
+#toastNotification {
+    position: fixed;           /* تثبيت في الشاشة */
+    top: 20px;                 /* مسافة من الأعلى */
+    left: 50%;                 /* في منتصف العرض */
+    transform: translateX(-50%); /* توسيط دقيق */
+    
+    background-color: #334155; /* لون افتراضي */
+    color: #fff;               /* لون النص أبيض */
+    
+    padding: 12px 25px;        /* مساحات داخلية مريحة */
+    border-radius: 50px;       /* حواف دائرية (شكل كبسولة) */
+    
+    font-family: 'Cairo', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); /* ظل ناعم */
+    z-index: 99999;            /* يظهر فوق أي شيء */
+    
+    display: none;             /* مخفي افتراضياً */
+    min-width: 280px;          /* عرض مناسب */
+    text-align: center;        /* توسيط الكلام */
+    
+    /* حركة ظهور ناعمة */
+    animation: slideDownFade 0.4s ease-out;
+}
+
+/* حركة الانزلاق */
+@keyframes slideDownFade {
+    from {
+        top: -50px;
+        opacity: 0;
+    }
+    to {
+        top: 20px;
+        opacity: 1;
+    }
+}
