@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html dir="rtl" lang="ar">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>نظام كشف الحضور - كلية التمريض</title>
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -11,15 +13,20 @@
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.png">
     <link rel="icon" href="icon.png" type="image/png">
-    
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Outfit:wght@500;700;900&family=Reem+Kufi:wght@700&display=swap" rel="stylesheet">
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Outfit:wght@500;700;900&family=Reem+Kufi:wght@700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <link rel="stylesheet" href="style.css">
 
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <script src="https://unpkg.com/read-excel-file@5.x/bundle/read-excel-file.min.js"></script>
     <script defer src="./face-api.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
+
 <body>
     <div id="topToast"></div>
     <div id="verificationSuccessModal" class="modal-overlay" style="z-index: 999999;">
@@ -27,46 +34,53 @@
             <i class="fa-solid fa-check-circle success-icon-large"></i>
             <div class="modal-title" style="color: #10b981; font-size: 16px;">تم التحقق</div>
             <div class="modal-text" style="font-weight:bold; color:#64748b; font-size: 13px;">جاري الفحص...</div>
-            <div style="margin-top:15px;"><i class="fa-solid fa-circle-notch fa-spin" style="color:var(--primary);"></i></div>
+            <div style="margin-top:15px;"><i class="fa-solid fa-circle-notch fa-spin" style="color:var(--primary);"></i>
+            </div>
         </div>
     </div>
-    
+
     <div id="bypassModal" class="modal-overlay" style="z-index: 999999;">
         <div class="modal-box">
             <i class="fa-solid fa-user-check bypass-icon"></i>
             <div class="modal-title" style="color: #10b981;">تم تجاوز التحقق</div>
-            <div class="modal-text">أنت الآن في وضع المسؤول اليدوي.<br><small style="color:#ef4444;">تم تخطي بصمة الوجه والموقع الجغرافي</small></div>
+            <div class="modal-text">أنت الآن في وضع المسؤول اليدوي.<br><small style="color:#ef4444;">تم تخطي بصمة الوجه
+                    والموقع الجغرافي</small></div>
         </div>
     </div>
-    
+
     <div id="duplicateModal" class="modal-overlay" style="z-index: 999999;">
         <div class="modal-box">
             <i class="fa-solid fa-triangle-exclamation" style="font-size:45px; color:#f59e0b; margin-bottom:15px;"></i>
             <div class="modal-title" style="color: #f59e0b;">تنبيه</div>
             <div class="modal-text">لقد قمت بتسجيل الحضور مسبقاً في هذا المقرر اليوم.</div>
-            <button onclick="document.getElementById('duplicateModal').style.display='none'" class="modal-btn btn-confirm" style="background:#334155;">حسناً</button>
+            <button onclick="document.getElementById('duplicateModal').style.display='none'"
+                class="modal-btn btn-confirm" style="background:#334155;">حسناً</button>
         </div>
     </div>
 
     <div id="evaluationModal" class="modal-overlay">
         <div class="modal-box">
             <div style="margin-bottom: 20px;">
-                <i class="fa-solid fa-file-circle-exclamation" style="font-size: 40px; color: #ef4444; margin-bottom: 10px;"></i>
-                <div class="modal-title" style="color: #1e293b; font-size: 20px; margin-bottom: 5px;">مؤشر عدم الانضباط</div>
+                <i class="fa-solid fa-file-circle-exclamation"
+                    style="font-size: 40px; color: #ef4444; margin-bottom: 10px;"></i>
+                <div class="modal-title" style="color: #1e293b; font-size: 20px; margin-bottom: 5px;">مؤشر عدم الانضباط
+                </div>
                 <p id="evalStudentName" style="font-weight:bold; color:#64748b; margin: 0; font-size: 14px;">--</p>
             </div>
-            
+
             <div class="total-score-display">
                 <span>المجموع الكلي للمخالفات:</span>
                 <span id="evalCurrentTotal" class="en-font" style="color:#ef4444; font-size: 16px;">0</span>
             </div>
 
             <div class="slider-container">
-                <input type="range" min="1" max="10" value="1" class="range-slider slider-green" id="behaviorSlider" oninput="updateSliderUI(this.value)">
+                <input type="range" min="1" max="10" value="1" class="range-slider slider-green" id="behaviorSlider"
+                    oninput="updateSliderUI(this.value)">
                 <div id="sliderValue">مخالفة بسيطة (1/10)</div>
             </div>
-            
-            <button onclick="saveEvaluation()" class="btn-main" style="background: linear-gradient(135deg, #ef4444, #b91c1c); box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.4);">
+
+            <button onclick="saveEvaluation()" class="btn-main"
+                style="background: linear-gradient(135deg, #ef4444, #b91c1c); box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.4);">
                 تسجيل المخالفة <i class="fa-solid fa-triangle-exclamation"></i>
             </button>
             <button onclick="closeEvaluation()" class="btn-cancel-modern">إلغاء</button>
@@ -82,7 +96,9 @@
     <div id="locationForceModal" class="modal-overlay" style="display:none;">
         <div class="modal-box">
             <div style="position:absolute; top:15px; left:15px;">
-                <button onclick="document.getElementById('locationForceModal').style.display='none'" style="background:none; border:none; color:#94a3b8; font-size:20px; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+                <button onclick="document.getElementById('locationForceModal').style.display='none'"
+                    style="background:none; border:none; color:#94a3b8; font-size:20px; cursor:pointer;"><i
+                        class="fa-solid fa-xmark"></i></button>
             </div>
             <i class="fa-solid fa-location-dot fa-bounce"></i>
             <div class="modal-title">تفعيل الموقع</div>
@@ -97,7 +113,8 @@
 
     <div id="customLogoutModal" class="modal-overlay">
         <div class="modal-box">
-            <i class="fa-solid fa-arrow-right-from-bracket" style="font-size: 40px; color: #ef4444; margin-bottom: 15px;"></i>
+            <i class="fa-solid fa-arrow-right-from-bracket"
+                style="font-size: 40px; color: #ef4444; margin-bottom: 15px;"></i>
             <div class="modal-title">تسجيل الخروج</div>
             <div class="modal-text">هل تريد الخروج من وضع المسؤول؟</div>
             <div class="modal-actions">
@@ -106,36 +123,41 @@
             </div>
         </div>
     </div>
-    
+
     <div id="banModal" class="modal-overlay" style="z-index: 100000;">
         <div class="modal-box" style="border: 2px solid #ef4444;">
             <i class="fa-solid fa-ban" style="font-size: 50px; color: #ef4444; margin-bottom: 15px;"></i>
             <div class="modal-title" style="color: #ef4444;">تم حظرك</div>
-            <div class="modal-text" style="font-weight: bold;">لقد استنفذت محاولاتك (3 مرات) أو تم اكتشاف تكرار في البيانات.</div>
+            <div class="modal-text" style="font-weight: bold;">لقد استنفذت محاولاتك (3 مرات) أو تم اكتشاف تكرار في
+                البيانات.</div>
             <button onclick="location.reload()" class="modal-btn btn-confirm" style="margin-top: 10px;">إغلاق</button>
         </div>
     </div>
-    
+
     <div id="timeoutModal" class="modal-overlay" style="z-index: 200000;">
         <div class="modal-box">
-            <i class="fa-solid fa-hourglass-end" style="font-size: 50px; color: #ef4444; margin-bottom: 15px; animation: pulse-red 2s infinite;"></i>
+            <i class="fa-solid fa-hourglass-end"
+                style="font-size: 50px; color: #ef4444; margin-bottom: 15px; animation: pulse-red 2s infinite;"></i>
             <div class="modal-title" style="color: #ef4444;">انتهى الوقت</div>
             <div class="modal-text" style="font-weight: bold; font-size: 15px; color: #1e293b;" id="timeoutMessage">
                 في المرة القادمة سيتم حظرك
             </div>
-            <button onclick="closeTimeoutModal()" class="modal-btn btn-confirm" style="background: #334155; margin-top:10px;">حسناً</button>
+            <button onclick="closeTimeoutModal()" class="modal-btn btn-confirm"
+                style="background: #334155; margin-top:10px;">حسناً</button>
         </div>
     </div>
-    
+
     <div id="identityAlertModal" class="modal-overlay" style="z-index: 99999999;">
         <div class="modal-box">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
                 <div class="modal-title" style="color:#b45309; margin:0;">تنبيهات النظام</div>
-                <div id="adminDeleteAlert" style="display:none; width:35px; height:35px; background:#fee2e2; border-radius:50%; align-items:center; justify-content:center; cursor:pointer; color:#ef4444;" onclick="openDeleteAlertsConfirm()">
+                <div id="adminDeleteAlert"
+                    style="display:none; width:35px; height:35px; background:#fee2e2; border-radius:50%; align-items:center; justify-content:center; cursor:pointer; color:#ef4444;"
+                    onclick="openDeleteAlertsConfirm()">
                     <i class="fa-solid fa-trash-can"></i>
                 </div>
             </div>
-            
+
             <div class="search-box-wrapper">
                 <i class="fa-solid fa-search"></i>
                 <input type="text" id="alertSearchInput" placeholder="بحث في التنبيهات..." onkeyup="filterAlerts()">
@@ -144,11 +166,12 @@
             <div id="alertsListContainer" style="max-height:300px; overflow-y:auto; margin-bottom:15px;">
                 <div class="empty-state" style="padding:15px; font-size:12px;">لا توجد تنبيهات مسجلة.</div>
             </div>
-            
-            <button onclick="closeIdentityAlert()" class="modal-btn btn-confirm" style="background:#334155; width:100%;">إغلاق</button>
+
+            <button onclick="closeIdentityAlert()" class="modal-btn btn-confirm"
+                style="background:#334155; width:100%;">إغلاق</button>
         </div>
     </div>
-    
+
     <div id="deleteAlertsConfirmModal" class="modal-overlay" style="z-index: 999999999;">
         <div class="modal-box">
             <i class="fa-solid fa-triangle-exclamation delete-icon-animate"></i>
@@ -168,8 +191,8 @@
             <div class="modal-text">أهلاً بك في لوحة تحكم المسؤول.</div>
         </div>
     </div>
-    
-    <div id="modernConfirmModal" class="modal-overlay" style="z-index: 99999;">
+
+    <div id="modernConfirmModal" class="modal-overlay" style="z-index: 210000000;">
         <div class="modal-box confirm-box-style">
             <div class="confirm-icon-animate">
                 <i class="fa-solid fa-trash-can"></i>
@@ -187,21 +210,35 @@
         <div class="modal-box">
             <div class="report-modal-header">
                 <div class="modal-title" style="margin:0; font-size:16px;">قائمة إدخال البيانات</div>
-                <button onclick="document.getElementById('dataEntryModal').style.display='none'" class="btn-close-stylish" style="width:auto; padding:5px 15px;">إغلاق</button>
+                <button onclick="document.getElementById('dataEntryModal').style.display='none'"
+                    class="btn-close-stylish" style="width:auto; padding:5px 15px;">إغلاق</button>
             </div>
             <div class="report-views-container">
                 <div style="padding:15px; display:flex; flex-direction:column; gap:10px;">
-                    <button onclick="openManageHalls()" class="admin-sub-btn btn-manage-halls" style="width:100%; height:70px; flex-direction:row; font-size:15px;">
+
+                    <button onclick="openManageHalls()" class="admin-sub-btn btn-manage-halls"
+                        style="width:100%; height:70px; flex-direction:row; font-size:15px;">
                         <i class="fa-solid fa-building sub-btn-icon"></i>
                         <span>إدارة القاعات</span>
                     </button>
-                    <button onclick="openManageSubjects()" class="admin-sub-btn btn-manage-subjects" style="width:100%; height:70px; flex-direction:row; font-size:15px;">
+
+                    <button onclick="openManageSubjects()" class="admin-sub-btn btn-manage-subjects"
+                        style="width:100%; height:70px; flex-direction:row; font-size:15px;">
                         <i class="fa-solid fa-book sub-btn-icon"></i>
                         <span>إدارة المواد</span>
                     </button>
-                    <div style="margin-top:20px; font-size:12px; color:#64748b;">
-                        * يتم تحديث بيانات الطلاب تلقائياً من السيرفر.
-                    </div>
+
+                    <button onclick="openManageStudentsModal()" class="admin-sub-btn btn-manage-students"
+                        style="width:100%; height:70px; flex-direction:row; font-size:15px; background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1px solid #86efac; color: #166534; margin-top: 10px;">
+                        <i class="fa-solid fa-users-gear sub-btn-icon" style="color: #166534; font-size: 20px;"></i>
+                        <span>إدارة قاعدة بيانات الطلاب</span>
+                    </button>
+                    <button onclick="document.getElementById('attendanceRecordsModal').style.display='flex'"
+                        class="admin-sub-btn btn-history"
+                        style="width:100%; height:70px; flex-direction:row; font-size:15px; margin-top:10px; background: #f0f9ff; border: 1px solid #bae6fd; color: #0284c7;">
+                        <i class="fa-solid fa-calendar-days sub-btn-icon" style="color: #0284c7;"></i>
+                        <span>سجلات الحضور (أرشيف)</span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -211,12 +248,14 @@
         <div class="modal-box">
             <div class="report-modal-header">
                 <div class="modal-title" style="margin:0; font-size:16px;">إدارة القاعات</div>
-                <button onclick="document.getElementById('manageHallsModal').style.display='none'" class="btn-close-stylish" style="width:auto; padding:5px 15px;">إغلاق</button>
+                <button onclick="document.getElementById('manageHallsModal').style.display='none'"
+                    class="btn-close-stylish" style="width:auto; padding:5px 15px;">إغلاق</button>
             </div>
             <div class="report-views-container">
                 <div style="padding:15px; overflow-y:auto; height:100%;">
                     <div class="search-box-wrapper">
-                        <input type="text" id="newHallInput" placeholder="أدخل اسم/رقم القاعة..." style="width:100%; padding:10px; border-radius:10px; border:1px solid #e2e8f0; margin-bottom:10px;">
+                        <input type="text" id="newHallInput" placeholder="أدخل اسم/رقم القاعة..."
+                            style="width:100%; padding:10px; border-radius:10px; border:1px solid #e2e8f0; margin-bottom:10px;">
                         <button onclick="addHall()" class="add-hall-btn" style="width:100%;">+ إضافة قاعة</button>
                     </div>
                     <div id="hallsListManage" style="margin-top:15px;"></div>
@@ -229,16 +268,19 @@
         <div class="modal-box">
             <div class="report-modal-header">
                 <div class="modal-title" style="margin:0; font-size:16px;">إدارة المواد</div>
-                <button onclick="document.getElementById('manageSubjectsModal').style.display='none'" class="btn-close-stylish" style="width:auto; padding:5px 15px;">إغلاق</button>
+                <button onclick="document.getElementById('manageSubjectsModal').style.display='none'"
+                    class="btn-close-stylish" style="width:auto; padding:5px 15px;">إغلاق</button>
             </div>
             <div class="report-views-container">
                 <div style="padding:15px; overflow-y:auto; height:100%;">
-                    <select id="manageYearSelect" class="modern-input" style="margin-bottom:10px;" onchange="renderSubjectsManage()">
+                    <select id="manageYearSelect" class="modern-input" style="margin-bottom:10px;"
+                        onchange="renderSubjectsManage()">
                         <option value="first_year">الفرقة الأولى</option>
                         <option value="second_year">الفرقة الثانية</option>
                     </select>
                     <div class="search-box-wrapper">
-                        <input type="text" id="newSubjectInput" placeholder="أدخل اسم المادة..." style="width:100%; padding:10px; border-radius:10px; border:1px solid #e2e8f0; margin-bottom:10px;">
+                        <input type="text" id="newSubjectInput" placeholder="أدخل اسم المادة..."
+                            style="width:100%; padding:10px; border-radius:10px; border:1px solid #e2e8f0; margin-bottom:10px;">
                         <button onclick="addSubject()" class="add-hall-btn" style="width:100%;">+ إضافة مادة</button>
                     </div>
                     <div id="subjectsListManage" style="margin-top:15px;"></div>
@@ -252,7 +294,8 @@
             <div class="report-modal-header">
                 <div style="display:flex; flex-direction:column; align-items:flex-start;">
                     <div class="modal-title" style="margin:0; font-size:16px;">سجل الحضور</div>
-                    <div id="reportDateDisplay" class="en-font" style="font-size:12px; color:#94a3b8; font-weight:bold;">--</div>
+                    <div id="reportDateDisplay" class="en-font"
+                        style="font-size:12px; color:#94a3b8; font-weight:bold;">--</div>
                 </div>
                 <button onclick="clearAllReport()" class="btn-icon-danger">
                     <i class="fa-solid fa-trash-can"></i>
@@ -263,25 +306,27 @@
                 <div id="viewSubjects" class="report-view slide-in">
                     <div id="subjectsContainer"></div>
                 </div>
-                
+
                 <div id="viewStudents" class="report-view">
                     <div class="students-list-header">
                         <button onclick="showSubjectsView()" class="btn-back-report">
                             <i class="fa-solid fa-arrow-right"></i>
                         </button>
                         <div style="display:flex; flex-direction:column; text-align:right;">
-                            <span id="currentSubjectTitle" style="font-weight:800; font-size:14px; color:var(--primary-dark)">--</span>
+                            <span id="currentSubjectTitle"
+                                style="font-weight:800; font-size:14px; color:var(--primary-dark)">--</span>
                         </div>
                         <button onclick="openReportModal()" class="btn-back-report" style="margin-right:auto;">
-                           <i class="fa-solid fa-rotate-right"></i>
+                            <i class="fa-solid fa-rotate-right"></i>
                         </button>
                     </div>
-                    
+
                     <div class="search-box-wrapper">
                         <i class="fa-solid fa-search"></i>
-                        <input type="text" id="studentSearchInput" placeholder="ابحث بالاسم أو الكود..." onkeyup="filterStudents()">
+                        <input type="text" id="studentSearchInput" placeholder="ابحث بالاسم أو الكود..."
+                            onkeyup="filterStudents()">
                     </div>
-                    
+
                     <div id="studentsContainer"></div>
                 </div>
             </div>
@@ -310,12 +355,14 @@
         <div class="modal-box">
             <i class="fa-solid fa-camera-slash" style="font-size: 45px; color: #ef4444; margin-bottom: 15px;"></i>
             <div class="modal-title" style="color: #ef4444;">خطأ في الكاميرا</div>
-            <div class="modal-text" id="cameraErrorMsg">يرجى التأكد من السماح للمتصفح باستخدام الكاميرا من إعدادات الهاتف.</div>
-            
-            <button onclick="alert('اذهب إلى إعدادات الهاتف -> التطبيقات -> المتصفح -> الأذونات -> الكاميرا -> سماح')" class="modal-btn" style="background:#f1f5f9; color:#334155; margin-bottom:10px; font-size:12px;">
+            <div class="modal-text" id="cameraErrorMsg">يرجى التأكد من السماح للمتصفح باستخدام الكاميرا من إعدادات
+                الهاتف.</div>
+
+            <button onclick="alert('اذهب إلى إعدادات الهاتف -> التطبيقات -> المتصفح -> الأذونات -> الكاميرا -> سماح')"
+                class="modal-btn" style="background:#f1f5f9; color:#334155; margin-bottom:10px; font-size:12px;">
                 <i class="fa-solid fa-gear"></i> طريقة التفعيل
             </button>
-            
+
             <button onclick="retryCamera()" class="modal-btn btn-confirm">إعادة المحاولة</button>
         </div>
     </div>
@@ -330,8 +377,8 @@
             <div class="modal-text">لا يوجد اتصال بالإنترنت.<br>جاري المحاولة...</div>
         </div>
     </div>
-    
-    <div id="toastNotification"></div> 
+
+    <div id="toastNotification"></div>
 
     <div id="adminFloatingBack" class="admin-floating-back" onclick="goBackToWelcome()">
         <i class="fa-solid fa-arrow-right"></i>
@@ -339,24 +386,25 @@
     <div class="app-card">
         <div class="card-banner"></div>
         <div id="adminBadge" class="admin-badge"><i class="fa-solid fa-user-shield"></i> وضع المسؤول مفعل</div>
-        
+
         <div id="notificationBtn" class="notification-btn" onclick="showNotificationModal()">
             <i class="fa-solid fa-bell"></i>
             <div class="notification-badge"></div>
         </div>
 
         <div class="card-body">
-            
+
             <div class="hero-icon-wrapper" id="heroIconWrapper">
                 <img src="https://k.top4top.io/p_3615d3vek1.png" class="hero-img" id="heroImage">
                 <div class="status-icon-container" id="statusIconContainer">
                     <i class="fa-solid fa-user-nurse hero-icon" id="statusIcon"></i>
                 </div>
             </div>
-            
+
             <div class="info-bar">
                 <div class="info-pill"><i class="fa-regular fa-clock"></i> <span id="currentTime">--:--:--</span></div>
-                <div class="info-pill"><i class="fa-regular fa-calendar"></i> <span id="currentDate">--/--/----</span></div>
+                <div class="info-pill"><i class="fa-regular fa-calendar"></i> <span id="currentDate">--/--/----</span>
+                </div>
             </div>
 
             <div class="card-body-content">
@@ -367,19 +415,31 @@
                     <h1 class="smart-title">نظام كشف الحضور</h1>
                     <p>مرحباً بك. يرجى الضغط بالأسفل لتسجيل حضور المحاضرة الحالية.</p>
                     <div style="position: relative; z-index: 2;">
-                        <button onclick="safeClick(this, () => startProcess(false))" class="btn-main" id="mainActionBtn">
+                        <button onclick="safeClick(this, () => startProcess(false))" class="btn-main"
+                            id="mainActionBtn">
                             تسجيل الحضور <i class="fa-solid fa-fingerprint"></i>
                         </button>
+                        <button id="btnToggleSession" onclick="safeClick(this, toggleSessionState)" class="btn-main"
+                            style="display:none; background: #e2e8f0; color: #475569; border: 2px solid #cbd5e1; margin-bottom: 15px; margin-top: 10px;">
+                            <div
+                                style="display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;">
+                                <i id="sessionIcon" class="fa-solid fa-lock"></i>
+                                <span id="sessionText">جاري فحص الحالة...</span>
+                            </div>
+                        </button>
                         <div class="admin-controls-grid">
-                            <button id="btnAdminLogin" onclick="safeClick(this, () => switchScreen('screenAdminLogin'))" class="admin-sub-btn btn-admin-login">
+                            <button id="btnAdminLogin" onclick="safeClick(this, () => switchScreen('screenAdminLogin'))"
+                                class="admin-sub-btn btn-admin-login">
                                 <i class="fa-solid fa-lock sub-btn-icon"></i>
                                 <span>دخول المسؤول</span>
                             </button>
-                            <button id="btnAdminLogout" onclick="safeClick(this, openLogoutModal)" class="admin-sub-btn btn-admin-logout" style="display:none;">
+                            <button id="btnAdminLogout" onclick="safeClick(this, openLogoutModal)"
+                                class="admin-sub-btn btn-admin-logout" style="display:none;">
                                 <i class="fa-solid fa-arrow-right-from-bracket fa-flip-horizontal sub-btn-icon"></i>
                                 <span>خروج المسؤول</span>
                             </button>
-                            <button id="btnViewReport" onclick="handleReportClick()" class="admin-sub-btn btn-report locked">
+                            <button id="btnViewReport" onclick="handleReportClick()"
+                                class="admin-sub-btn btn-report locked">
                                 <i id="reportIcon" class="fa-solid fa-list-check sub-btn-icon"></i>
                                 <span>سجل الحضور</span>
                             </button>
@@ -387,17 +447,19 @@
                                 <i class="fa-solid fa-file-pen sub-btn-icon"></i>
                                 <span style="font-size: 13px;">تنظيم الامتحانات</span>
                             </button>
-                            
-                            <button onclick="safeClick(this, () => location.reload())" class="admin-sub-btn btn-refresh">
+
+                            <button onclick="safeClick(this, () => location.reload())"
+                                class="admin-sub-btn btn-refresh">
                                 <i class="fa-solid fa-arrows-rotate sub-btn-icon" style="font-size: 22px;"></i>
                             </button>
 
-                            <button onclick="openDataEntryMenu()" class="admin-sub-btn btn-data-entry" id="btnDataEntry" style="display:none;">
+                            <button onclick="openDataEntryMenu()" class="admin-sub-btn btn-data-entry" id="btnDataEntry"
+                                style="display:none;">
                                 <i class="fa-solid fa-database sub-btn-icon"></i>
                                 <span>إدخال البيانات</span>
                             </button>
                         </div>
-                        
+
                         <div id="installAppPrompt" class="install-prompt-box" onclick="triggerAppInstall()">
                             <div class="install-icon-box"><i class="fa-solid fa-download"></i></div>
                             <div class="install-text-col">
@@ -412,12 +474,25 @@
                 </div>
                 <div id="screenAdminLogin" class="section">
                     <h1>دخول المسؤول</h1>
-                    <p>أدخل كلمة المرور.</p>
+                    <p>أدخل بيانات الحساب الإداري.</p>
                     <div id="adminAlert" style="display:none;" class="alert-box"></div>
+
                     <div class="input-group">
-                        <input type="password" id="adminPassword" placeholder="كلمة المرور" required>
+                        <input type="email" id="adminEmailInput" class="modern-input" placeholder="البريد الإلكتروني"
+                            style="margin-bottom: 10px; direction: ltr;" required>
+
+                        <div style="position: relative; width: 100%;">
+                            <input type="password" id="adminPassword" class="modern-input" placeholder="كلمة المرور"
+                                style="padding-left: 45px;" required>
+
+                            <i class="fa-solid fa-eye" id="eyeIcon" onclick="togglePasswordVisibility()"
+                                style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #94a3b8; font-size: 18px; z-index: 10;">
+                            </i>
+                        </div>
                     </div>
-                    <button onclick="checkAdminPassword()" class="btn-main">تفعيل <i class="fa-solid fa-key"></i></button>
+
+                    <button onclick="checkAdminPassword()" class="btn-main">تفعيل <i
+                            class="fa-solid fa-key"></i></button>
                     <button onclick="goBackToWelcome()" class="btn-back-modern">
                         العودة للصفحة الرئيسية
                         <i class="fa-solid fa-arrow-left"></i>
@@ -425,22 +500,25 @@
                 </div>
                 <div id="screenLoading" class="section">
                     <h1 style="margin-top: 10px;">جاري التحقق...</h1>
-                    <i class="fa-solid fa-circle-notch fa-spin" style="font-size:40px; color:var(--primary); margin: 20px 0;"></i>
+                    <i class="fa-solid fa-circle-notch fa-spin"
+                        style="font-size:40px; color:var(--primary); margin: 20px 0;"></i>
                     <p>يرجى السماح للمتصفح بتحديد موقعك الجغرافي.</p>
-                    
+
                     <button onclick="openMapsToRefreshGPS()" class="btn-google-maps" style="margin-top: 20px;">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/a/aa/Google_Maps_icon_%282020%29.svg" class="maps-icon-img" alt="Maps">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/a/aa/Google_Maps_icon_%282020%29.svg"
+                            class="maps-icon-img" alt="Maps">
                         <span>فتح الخريطة (لتنشيط GPS)</span>
                     </button>
                 </div>
 
                 <div id="screenReadyToStart" class="section">
                     <div style="margin: 30px 0;">
-                        <i class="fa-solid fa-map-location-dot" style="font-size: 60px; color: #10b981; animation: popUp 0.5s;"></i>
+                        <i class="fa-solid fa-map-location-dot"
+                            style="font-size: 60px; color: #10b981; animation: popUp 0.5s;"></i>
                     </div>
                     <h1 style="color: #10b981;">الموقع مطابق</h1>
                     <p>تم التحقق من تواجدك في الكلية بنجاح.</p>
-                    
+
                     <button onclick="generateCodeAndShowDataEntry()" class="btn-main" style="margin-top: 10px;">
                         سجل الآن <i class="fa-solid fa-arrow-left"></i>
                     </button>
@@ -457,16 +535,19 @@
                             <span class="timer-label">ثانية</span>
                         </div>
                     </div>
-                    
+
                     <div class="attempts-hearts" id="attemptsHeartsContainer"></div>
 
                     <h1 style="font-size:20px; margin-top:5px;">بيانات الطالب / الطالبة</h1>
-                    <div id="dataEntryAlert" class="alert-box" style="display:none; margin-bottom: 25px; color:#ef4444; font-weight:bold;"></div>
+                    <div id="dataEntryAlert" class="alert-box"
+                        style="display:none; margin-bottom: 25px; color:#ef4444; font-weight:bold;"></div>
                     <div class="input-group">
-                        <input type="text" id="uniID" class="modern-input en-font" placeholder="ID" readonly style="text-align:center; font-size:20px; letter-spacing:2px; font-weight:bold; background:white;">
+                        <input type="text" id="uniID" class="modern-input en-font" placeholder="ID" readonly
+                            style="text-align:center; font-size:20px; letter-spacing:2px; font-weight:bold; background:white;">
                     </div>
-                    <div class="input-group"><input type="text" id="attendanceCode" class="modern-input locked en-font" readonly></div>
-                    
+                    <div class="input-group"><input type="text" id="attendanceCode" class="modern-input locked en-font"
+                            readonly></div>
+
                     <div class="custom-keypad">
                         <button type="button" class="key-btn" onclick="addKey('1')">1</button>
                         <button type="button" class="key-btn" onclick="addKey('2')">2</button>
@@ -479,10 +560,12 @@
                         <button type="button" class="key-btn" onclick="addKey('9')">9</button>
                         <button type="button" class="key-btn action-btn" onclick="clearKey()">C</button>
                         <button type="button" class="key-btn" onclick="addKey('0')">0</button>
-                        <button type="button" class="key-btn delete-btn" onclick="backspaceKey()"><i class="fa-solid fa-delete-left"></i></button>
+                        <button type="button" class="key-btn delete-btn" onclick="backspaceKey()"><i
+                                class="fa-solid fa-delete-left"></i></button>
                     </div>
-                    
-                    <button type="button" onclick="handleIdSubmit()" class="btn-main" id="nextStepBtn" style="margin-top:20px;">التالي <i class="fa-solid fa-arrow-left"></i></button>
+
+                    <button type="button" onclick="handleIdSubmit()" class="btn-main" id="nextStepBtn"
+                        style="margin-top:20px;">التالي <i class="fa-solid fa-arrow-left"></i></button>
                 </div>
 
                 <div id="screenFaceCheck" class="section">
@@ -492,7 +575,8 @@
                         <div id="loaderSpinner" class="spinner-overlay">
                             <i class="fa-solid fa-user-shield large-loader-icon"></i>
                             <div class="spinner"></div>
-                            <p style="color:var(--text-main); font-size:14px; margin-top:15px; font-weight:bold;">جاري تهيئة النظام...</p>
+                            <p style="color:var(--text-main); font-size:14px; margin-top:15px; font-weight:bold;">جاري
+                                تهيئة النظام...</p>
                         </div>
                         <div id="modernTimerContainer" class="timer-circular-wrapper">
                             <svg class="timer-svg-face" viewBox="0 0 100 100">
@@ -508,10 +592,10 @@
                     <h3 id="statusTxt" style="color:#0ea5e9; font-weight:bold; margin-top:10px;">جاري التشغيل...</h3>
                     <p style="font-size:12px; margin-top:5px;">يجب أن يكون وجهك ثابتاً وبدون ضحك</p>
                 </div>
-                
+
                 <div id="screenScanQR" class="section">
                     <h1 class="scan-title-modern">مسح رمز الحضور</h1>
-                    
+
                     <div class="student-info-card">
                         <div class="student-info-item">
                             <div class="student-info-icon"><i class="fa-solid fa-user-graduate"></i></div>
@@ -524,12 +608,15 @@
                             <span class="student-info-value en-font" id="scanIDDisplay">--</span>
                         </div>
                         <div class="student-info-item">
-                            <div class="student-info-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                            <div class="student-info-icon"
+                                style="background: linear-gradient(135deg, #f59e0b, #d97706);"><i
+                                    class="fa-solid fa-triangle-exclamation"></i></div>
                             <span class="student-info-label">مؤشر عدم الانضباط</span>
-                            <span class="student-info-value discipline-score-display" id="scanDisciplineDisplay">0</span>
+                            <span class="student-info-value discipline-score-display"
+                                id="scanDisciplineDisplay">0</span>
                         </div>
                     </div>
-                    
+
                     <div class="custom-select-wrapper" id="yearSelectWrapper">
                         <label class="custom-select-label">الفرقة الدراسية</label>
                         <div class="custom-select-trigger" data-default-text="-- اختر الفرقة --">
@@ -552,7 +639,7 @@
                             <option value="second_year">الفرقة الثانية</option>
                         </select>
                     </div>
-                    
+
                     <div class="custom-select-wrapper disabled" id="groupSelectWrapper">
                         <label class="custom-select-label">رقم المجموعة (الجروب)</label>
                         <div class="custom-select-trigger" data-default-text="-- اختر الفرقة أولاً --">
@@ -592,7 +679,7 @@
                             <option value="" disabled selected>-- اختر الفرقة أولاً --</option>
                         </select>
                     </div>
-                    
+
                     <div class="custom-select-wrapper" id="hallSelectWrapper">
                         <label class="custom-select-label">المدرج الدراسي (مطلوب)</label>
                         <div class="custom-select-trigger" data-default-text="-- اختر المدرج --">
@@ -606,11 +693,12 @@
                         <div class="custom-options">
                             <div class="sheet-handle"></div>
                             <div class="options-title">اختر المدرج الدراسي</div>
-                            
+
                             <div class="hall-search-box">
-                                <input type="text" id="hallSearchInput" class="hall-search-input" placeholder="بحث عن القاعة..." onclick="event.stopPropagation()">
+                                <input type="text" id="hallSearchInput" class="hall-search-input"
+                                    placeholder="بحث عن القاعة..." onclick="event.stopPropagation()">
                             </div>
-                            
+
                             <div id="hallOptionsContainer" style="max-height: 250px; overflow-y: auto;"></div>
                         </div>
                         <select id="hallSelect" style="display:none;" onchange="checkAllConditions()">
@@ -618,18 +706,24 @@
                         </select>
                     </div>
 
-                    <button onclick="safeClick(this, startFaceVerificationProcess)" class="btn-verify-identity" id="btnVerify">
+                    <button onclick="safeClick(this, startFaceVerificationProcess)" class="btn-verify-identity"
+                        id="btnVerify">
                         <i class="fa-solid fa-fingerprint"></i> التحقق من الهوية
                     </button>
-                    
-                    <div id="adminBypassContainer" style="display:block; margin-top:10px; margin-bottom:15px; text-align:right;">
-                        <label style="display:flex; align-items:center; gap:10px; cursor:pointer; background:#fff; padding:10px; border-radius:12px; border:1px solid #e2e8f0;">
-                            <input type="checkbox" id="bypassCheckbox" style="width:20px; height:20px; accent-color:#10b981;" onchange="toggleBypassMode()">
+
+                    <div id="adminBypassContainer"
+                        style="display:block; margin-top:10px; margin-bottom:15px; text-align:right;">
+                        <label
+                            style="display:flex; align-items:center; gap:10px; cursor:pointer; background:#fff; padding:10px; border-radius:12px; border:1px solid #e2e8f0;">
+                            <input type="checkbox" id="bypassCheckbox"
+                                style="width:20px; height:20px; accent-color:#10b981;" onchange="toggleBypassMode()">
                             <span style="font-weight:bold; color:#ef4444; font-size:13px;">تجاوز التحقق (للتجربة)</span>
                         </label>
                     </div>
 
-                    <div id="qr-reader"><div class="scanner-laser"></div></div>
+                    <div id="qr-reader">
+                        <div class="scanner-laser"></div>
+                    </div>
                     <div id="startScanCard" class="qr-card-trigger" onclick="safeClick(this, startQrScanner)">
                         <div class="qr-card-icon"><i class="fa-solid fa-camera"></i></div>
                         <div>
@@ -637,10 +731,15 @@
                             <div class="qr-card-sub">وجه الكاميرا نحو الرمز</div>
                         </div>
                     </div>
-                    <div id="scanSuccessMsg" class="scan-success-badge"><i class="fa-solid fa-check-circle"></i> تم مسح الكود بنجاح</div>
-                    <button type="button" id="retryCamBtn" class="btn-secondary" onclick="startQrScanner()" style="display:none; background: #fee2e2; color: #ef4444; margin-bottom: 15px;"><i class="fa-solid fa-rotate-right"></i> إعادة تشغيل الكاميرا</button>
+                    <div id="scanSuccessMsg" class="scan-success-badge"><i class="fa-solid fa-check-circle"></i> تم مسح
+                        الكود بنجاح</div>
+                    <button type="button" id="retryCamBtn" class="btn-secondary" onclick="startQrScanner()"
+                        style="display:none; background: #fee2e2; color: #ef4444; margin-bottom: 15px;"><i
+                            class="fa-solid fa-rotate-right"></i> إعادة تشغيل الكاميرا</button>
                     <input type="hidden" id="sessionPass" required>
-                    <button type="button" id="submitBtn" class="btn-main" disabled style="opacity:0.6; cursor:not-allowed;">تأكيد الحضور <i class="fa-solid fa-paper-plane"></i></button>
+                    <button type="button" id="submitBtn" class="btn-main" disabled
+                        style="opacity:0.6; cursor:not-allowed;">تأكيد الحضور <i
+                            class="fa-solid fa-paper-plane"></i></button>
                 </div>
 
                 <div id="screenSuccess" class="section">
@@ -652,14 +751,21 @@
                         </div>
                         <div class="ticket-body">
                             <div class="verified-badge">VERIFIED</div>
-                            <div class="t-row"><span class="t-label">Name</span><span class="t-value" id="receiptName">--</span></div>
-                            <div class="t-row"><span class="t-label">ID</span><span class="t-value english-num" id="receiptID">--</span></div>
+                            <div class="t-row"><span class="t-label">Name</span><span class="t-value"
+                                    id="receiptName">--</span></div>
+                            <div class="t-row"><span class="t-label">ID</span><span class="t-value english-num"
+                                    id="receiptID">--</span></div>
                             <div class="ticket-dashed-line"></div>
-                            <div class="t-row"><span class="t-label">Group</span><span class="t-value english-num" id="receiptGroup">--</span></div>
-                            <div class="t-row"><span class="t-label">Subject</span><span class="t-value" id="receiptSubject" style="color:var(--primary)">--</span></div>
-                            <div class="t-row"><span class="t-label">Hall</span><span class="t-value english-num" id="receiptHall">--</span></div>
-                            <div class="t-row"><span class="t-label">Date</span><span class="t-value english-num" id="receiptDate">--</span></div>
-                            <div class="t-row"><span class="t-label">Time</span><span class="t-value english-num" id="receiptTime">--</span></div>
+                            <div class="t-row"><span class="t-label">Group</span><span class="t-value english-num"
+                                    id="receiptGroup">--</span></div>
+                            <div class="t-row"><span class="t-label">Subject</span><span class="t-value"
+                                    id="receiptSubject" style="color:var(--primary)">--</span></div>
+                            <div class="t-row"><span class="t-label">Hall</span><span class="t-value english-num"
+                                    id="receiptHall">--</span></div>
+                            <div class="t-row"><span class="t-label">Date</span><span class="t-value english-num"
+                                    id="receiptDate">--</span></div>
+                            <div class="t-row"><span class="t-label">Time</span><span class="t-value english-num"
+                                    id="receiptTime">--</span></div>
                         </div>
                     </div>
                     <div style="color:#64748b; font-weight:700; font-size:12px; margin-top:10px;">
@@ -670,14 +776,146 @@
                 <div id="screenError" class="section">
                     <h1 style="color:#ef4444;">تنبيه</h1>
                     <div id="errorMsg" class="alert-box"></div>
-                    <button id="retryBtn" class="btn-main" style="background:#334155; margin-top:20px;">حاول مرة أخرى</button>
+                    <button id="retryBtn" class="btn-main" style="background:#334155; margin-top:20px;">حاول مرة
+                        أخرى</button>
                 </div>
             </div>
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    
-    <script src="script.js"></script>
+    <div id="manageUploadsModal" class="modal-overlay" style="z-index: 200000000;">
+        <div class="modal-box">
+            <div class="report-modal-header">
+                <div class="modal-title" style="margin:0; font-size:16px;">سجل الملفات المرفوعة</div>
+                <button onclick="document.getElementById('manageUploadsModal').style.display='none'"
+                    class="btn-close-stylish" style="width:auto; padding:5px 15px;">إغلاق</button>
+            </div>
+            <div class="report-views-container">
+                <div style="padding:15px; overflow-y:auto; height:100%;">
+                    <div id="uploadsHistoryContainer">
+                        <div style="text-align:center; padding:20px;"><i class="fa-solid fa-spinner fa-spin"></i> جاري
+                            التحميل...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="manageStudentsModal" class="modal-overlay">
+        <div class="modal-box" style="background: #f8fafc; padding: 0; overflow: hidden;">
 
+            <div class="report-modal-header">
+                <div class="modal-title" style="margin:0; font-size:16px; color:#0f172a;">إدارة بيانات الطلاب</div>
+                <button onclick="closeManageStudentsModal()" class="btn-close-stylish"
+                    style="width:auto; padding:5px 15px;">إغلاق</button>
+            </div>
+
+            <div class="report-views-container" style="padding: 20px;">
+
+                <div class="modern-card-action">
+                    <div class="card-label"><i class="fa-solid fa-layer-group"></i> الخطوة الأولى: تحديد الفرقة</div>
+                    <div class="modern-select-wrapper">
+                        <select id="uploadLevelSelect" class="modern-select-input">
+                            <option value="" disabled selected>-- اضغط لاختيار الفرقة --</option>
+                            <option value="1">الفرقة الأولى</option>
+                            <option value="2">الفرقة الثانية</option>
+                            <option value="3">الفرقة الثالثة</option>
+                            <option value="4">الفرقة الرابعة</option>
+                        </select>
+                        <i class="fa-solid fa-chevron-down select-arrow"></i>
+                    </div>
+                </div>
+
+                <div class="modern-card-action" style="margin-top: 15px; border-color: #bbf7d0; background: #f0fdf4;">
+                    <div class="card-label" style="color: #166534;"><i class="fa-solid fa-cloud-arrow-up"></i> الخطوة
+                        الثانية: رفع الملف</div>
+                    <input type="file" id="excelFileInput" style="display: none;" accept=".xlsx, .xls" />
+                    <button onclick="triggerUploadProcess()" class="btn-action-modern upload-btn">
+                        اختر ملف Excel <i class="fa-solid fa-file-excel"></i>
+                    </button>
+                    <div id="uploadStatus"
+                        style="font-size: 11px; text-align: center; margin-top: 8px; color: #166534; font-weight:bold; min-height: 15px;">
+                    </div>
+                </div>
+
+                <div class="separator-line">أو</div>
+
+                <button onclick="openUploadHistory()" class="btn-history-modern">
+                    <i class="fa-solid fa-clock-rotate-left"></i> عرض السجل / حذف شيت سابق
+                </button>
+
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script type="module" src="script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.min.js"></script>
+    <div id="attendanceRecordsModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="report-modal-header">
+                <div class="modal-title" style="margin:0; font-size:16px;">أرشيف السجلات</div>
+                <button onclick="document.getElementById('attendanceRecordsModal').style.display='none'"
+                    class="btn-close-stylish" style="width:auto; padding:5px 15px;">إغلاق</button>
+            </div>
+
+            <div class="report-views-container" style="padding: 20px;">
+
+                <label style="display:block; margin-bottom:5px; font-weight:bold; color:#1e293b;">تاريخ
+                    المحاضرة:</label>
+                <input type="date" id="historyDateInput" class="modern-input" style="width:100%; margin-bottom:15px;">
+
+                <label style="display:block; margin-bottom:5px; font-weight:bold; color:#1e293b;">الفرقة
+                    الدراسية:</label>
+                <div class="modern-select-wrapper" style="margin-bottom:15px;">
+                    <select id="archiveLevelSelect" class="modern-select-input" onchange="clearSearchBox()">
+                        <option value="" disabled selected>-- اختر الفرقة --</option>
+                        <option value="1">الفرقة الأولى</option>
+                        <option value="2">الفرقة الثانية</option>
+                        <option value="3">الفرقة الثالثة</option>
+                        <option value="4">الفرقة الرابعة</option>
+                    </select>
+                    <i class="fa-solid fa-chevron-down select-arrow"></i>
+                </div>
+
+                <label style="display:block; margin-bottom:5px; font-weight:bold; color:#1e293b;">اسم المادة:</label>
+
+                <div style="position: relative; margin-bottom:20px;">
+                    <input type="text" id="archiveSubjectInput" class="modern-input" placeholder="اكتب للبحث (أ = ا)..."
+                        style="width:100%;" oninput="smartSubjectSearch()" onfocus="smartSubjectSearch()">
+                    <div id="suggestionBox"
+                        style="display:none; position:absolute; top:100%; left:0; right:0; background:white; border:1px solid #cbd5e1; border-radius:0 0 8px 8px; max-height:150px; overflow-y:auto; z-index:1000; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
+                    </div>
+                </div>
+
+                <button onclick="downloadHistoricalSheet()" class="btn-main"
+                    style="background: linear-gradient(135deg, #0ea5e9, #0284c7);">
+                    تحميل كشف الحضور <i class="fa-solid fa-cloud-arrow-down"></i>
+                </button>
+
+            </div>
+        </div>
+    </div>
+    <div id="secureLoginModal" class="modal-overlay">
+        <div class="modal-box" style="max-width: 400px;">
+            <div class="report-modal-header">
+                <div class="modal-title">🔐 دخول المشرفين</div>
+                <button onclick="document.getElementById('secureLoginModal').style.display='none'"
+                    class="btn-close-stylish">إغلاق</button>
+            </div>
+
+            <div style="padding: 20px;">
+                <label style="display:block; margin-bottom:5px; font-weight:bold;">البريد الإلكتروني الموحد:</label>
+                <input type="email" id="adminEmail" class="modern-input" placeholder="admin@nursing.com"
+                    style="width:100%; margin-bottom:15px; direction:ltr;">
+
+                <label style="display:block; margin-bottom:5px; font-weight:bold;">كلمة المرور:</label>
+                <input type="password" id="adminPass" class="modern-input" placeholder="********"
+                    style="width:100%; margin-bottom:20px; direction:ltr;">
+
+                <button onclick="performSecureLogin()" class="btn-main" style="width:100%;">تسجيل الدخول</button>
+            </div>
+        </div>
+    </div>
+    <div id="toastNotification"></div>
 </body>
+
 </html>
